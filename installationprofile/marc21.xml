@@ -632,7 +632,7 @@
 						<labels>
 							<label locale="en_US">
 								<name>Note</name>
-								<description>MARC 852 $n; dcterms:hasPart</description>
+								<description>MARC 774 $n; dcterms:hasPart</description>
 							</label>
 						</labels>
 						<settings>
@@ -698,7 +698,7 @@
                  <metadataElement code="conmarc773nto" datatype="Container">
                         <labels>
                                 <label locale="en_US">
-                                        <name>MARC 773 $n + $t + $o: Host Item Entryy</name>
+                                        <name>MARC 773 $n + $t + $o: Host Item Entry</name>
                                         <description>edm:isPartOf</description>
                                 </label>
                         </labels>
@@ -1721,67 +1721,30 @@
                 </metadataElement>
                 <!-- TODO decide which MARC elements can be used. Minimum is leader 06 and leader 07 -->
                 <!-- codes leader06: a,c,d,t = tekst; e,f,g,k = image; i,j  = sound; m,o,p,r = ignore;  leader07: c,s = collection -->
-                 <metadataElement code="conleader0607" datatype="Container">
-                        <labels>
-                                <label locale="en_US">
-					<name>Leader 06 and leader 07: Type of the resource</name>
-					<description>Will include minimum leader 06 and leader 07 (will become dc:type)</description>
-				</label>
-                        </labels>
-                        <settings/>
-                        <elements>
-                                <metadataElement code="conleader0607_line1" datatype="Container">
-                                  <labels>
-                                    <label locale="en_US">
-                                      <name>Type of the resource</name>
-                                    </label>
-                                  </labels>
-                                  <settings>
-                                    <setting name="doesNotTakeLocale">0</setting>
-                                  </settings>
-                                  <elements>
-                                    <metadataElement code="leader06" datatype="Text">
-					<labels>
-						<label locale="en_US">
-							<name>Leader06: Type of the resource</name>
-							<description>Will include minimum leader 06 (will become dc:type)</description>
-						</label>
-					</labels>
-					<settings>
-						<setting name="fieldWidth">10</setting>
-						<setting name="fieldHeight">1</setting>
-						<setting name="minChars">0</setting>
-						<setting name="maxChars">65535</setting>
-					</settings>
-                                    </metadataElement>
-				<metadataElement code="leader07" datatype="Text">
-					<labels>
-						<label locale="en_US">
-							<name>Leader07: Type of the resource</name>
-							<description>Will include minimum leader 06 en leader 07 (will become dc:type)</description>
-						</label>
-					</labels>
-					<settings>
-						<setting name="fieldWidth">10</setting>
-						<setting name="fieldHeight">1</setting>
-						<setting name="minChars">0</setting>
-						<setting name="maxChars">65535</setting>
-					</settings>
-                                    </metadataElement>
-                                  </elements>
-                                  </metadataElement>
-                                  </elements>
-                        <typeRestrictions>
-                                <restriction code="r1">
-                                        <table>ca_objects</table>
-                                        <settings>
-                                                <setting name="minAttributesPerRow">0</setting>
-                                                <setting name="maxAttributesPerRow">100</setting>
-                                                <setting name="minimumAttributeBundlesToDisplay">0</setting>
-                                        </settings>
-                                </restriction>
-                        </typeRestrictions>
-                </metadataElement>
+                <metadataElement code="leader06" datatype="Text">
+		<labels>
+			<label locale="en_US">
+				<name>Leader06: Type of the resource</name>
+				<description>Will include minimum leader 06 (will become dc:type)</description>
+			</label>
+		</labels>
+		<settings>
+			<setting name="fieldWidth">10</setting>
+			<setting name="fieldHeight">1</setting>
+			<setting name="minChars">0</setting>
+			<setting name="maxChars">65535</setting>
+		</settings>
+		<typeRestrictions>
+			<restriction code="r1">
+				<table>ca_objects</table>
+				<settings>
+					<setting name="minAttributesPerRow">0</setting>
+					<setting name="maxAttributesPerRow">100</setting>
+					<setting name="minimumAttributeBundlesToDisplay">0</setting>
+				</settings>
+			</restriction>
+		</typeRestrictions>
+		</metadataElement>
                 <!-- MARC 245 $c -->
                 <metadataElement code="marc245c" datatype="Text">
 				<labels>
@@ -2451,6 +2414,28 @@
                                 </restriction>
                         </typeRestrictions>
                 </metadataElement>
+                <metadataElement code="entityUrl" datatype="Url">
+				<labels>
+					<label locale="en_US">
+						<name>ODIS Url</name>
+						<description></description>
+					</label>
+				</labels>
+				<settings>
+					<setting name="fieldWidth">80</setting>
+					<setting name="fieldHeight">1</setting>
+				</settings>
+                        <typeRestrictions>
+                                <restriction code="r1">
+                                        <table>ca_entities</table>
+                                        <settings>
+                                                <setting name="minAttributesPerRow">0</setting>
+                                                <setting name="maxAttributesPerRow">100</setting>
+                                                <setting name="minimumAttributeBundlesToDisplay">0</setting>
+                                        </settings>
+                                </restriction>
+                        </typeRestrictions>
+                </metadataElement>
         </elementSets>
         <userInterfaces>
                 <userInterface code="object_cataloguers_ui" type="ca_objects">
@@ -2545,7 +2530,7 @@
                                                 </placement>
                                                 <!-- MARC 111 $a -->
                                                 <placement code="ca_marc111a">
-                                                        <bundle>ca_entities</bundle>
+                                                        <bundle>ca_occurrences</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc111a</setting>
                                                                 <setting name="label" locale="en_US">MARC 111 $a: Creator</setting>
@@ -2920,6 +2905,9 @@
                                                 <placement code="ca_collections">
                                                         <bundle>ca_collections</bundle>
                                                 </placement>
+                                                <placement code="ca_list_items">
+                                                        <bundle>ca_list_items</bundle>
+                                                </placement>
                                         </bundlePlacements>
                                 </screen>
                                 <screen idno="media" default="0">
@@ -3080,6 +3068,9 @@
                                                 </placement>
                                                 <placement code="ca_attribute_entityDate">
                                                         <bundle>ca_attribute_entityDate</bundle>
+                                                </placement>
+                                                <placement code="ca_attribute_entityUrl">
+                                                        <bundle>ca_attribute_entityUrl</bundle>
                                                 </placement>
                                                 <placement code="status">
                                                         <bundle>status</bundle>
