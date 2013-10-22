@@ -753,7 +753,7 @@
                                                <metadataElement code="marc773o" datatype="Url">
 						<labels>
 							<label locale="en_US">
-								<name>MARC 773 $t: Url</name>
+								<name>MARC 773 $o: Url</name>
 								<description>dcterms:isPartOf</description>
 							</label>
 						</labels>
@@ -1729,7 +1729,7 @@
 			</label>
 		</labels>
 		<settings>
-			<setting name="fieldWidth">10</setting>
+			<setting name="fieldWidth">80</setting>
 			<setting name="fieldHeight">1</setting>
 			<setting name="minChars">0</setting>
 			<setting name="maxChars">65535</setting>
@@ -2515,6 +2515,7 @@
                                                         <bundle>ca_entities</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc100a</setting>
+                                                                <setting name="restrict_to_types">individual</setting>
                                                                 <setting name="label" locale="en_US">MARC 100 $a: Creator</setting>
                                                                 <setting name="add_label" locale="en_US">Add creator</setting>
                                                         </settings>
@@ -2524,6 +2525,7 @@
                                                         <bundle>ca_entities</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc110a</setting>
+                                                                <setting name="restrict_to_types">organization</setting>
                                                                 <setting name="label" locale="en_US">MARC 110 $a: Creator</setting>
                                                                 <setting name="add_label" locale="en_US">Add creator</setting>
                                                         </settings>
@@ -2533,6 +2535,7 @@
                                                         <bundle>ca_occurrences</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc111a</setting>
+                                                                <setting name="restrict_to_types">occurrencesEvents</setting>
                                                                 <setting name="label" locale="en_US">MARC 111 $a: Creator</setting>
                                                                 <setting name="add_label" locale="en_US">Add creator</setting>
                                                         </settings>
@@ -2550,6 +2553,7 @@
                                                         <bundle>ca_entities</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc700a</setting>
+                                                                <setting name="restrict_to_types">individual</setting>
                                                                 <setting name="label" locale="en_US">MARC 700$a: Personal name - Contributor</setting>
                                                                 <setting name="add_label" locale="en_US">Add contibutor</setting>
                                                         </settings>
@@ -2559,6 +2563,7 @@
                                                         <bundle>ca_entities</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc710a</setting>
+                                                                <setting name="restrict_to_types">organization</setting>
                                                                 <setting name="label" locale="en_US">MARC 710$a: Corporate name - Contributor</setting>
                                                                 <setting name="add_label" locale="en_US">Add contibutor</setting>
                                                         </settings>
@@ -2568,6 +2573,7 @@
                                                         <bundle>ca_occurrences</bundle>
                                                         <settings>
                                                                 <setting name="restrict_to_relationship_types">marc711a</setting>
+                                                                <setting name="restrict_to_types">occurrencesEvents</setting>
                                                                 <setting name="label" locale="en_US">MARC 711$a: Meeting name - Contributor</setting>
                                                                 <setting name="add_label" locale="en_US">Add contibutor</setting>
                                                         </settings>
@@ -2750,8 +2756,8 @@
                                                 	<bundle>ca_attribute_marc336a</bundle>
                                                 </placement>
                                                 <!-- MARC leader 06 and leader 07 -->
-                                                <placement code="ca_attribute_conleader0607">
-                                                	<bundle>ca_attribute_conleader0607</bundle>
+                                                <placement code="ca_attribute_leader06">
+                                                	<bundle>ca_attribute_leader06</bundle>
                                                 </placement>
                                                 <!-- MARC 506 $a$d -->
                                                 <placement code="ca_attribute_conmarc506ad">
@@ -2772,6 +2778,10 @@
                                                 <!-- MARC 774 $n + $t  + $o-->
                                                 <placement code="ca_attribute_conmarc774nto">
                                                 	<bundle>ca_attribute_conmarc774nto</bundle>
+                                                </placement>
+                                                <!-- MARC 773 $n + $t  + $o-->
+                                                <placement code="ca_attribute_conmarc773nto">
+                                                	<bundle>ca_attribute_conmarc773nto</bundle>
                                                 </placement>
                                                 <!-- MARC 538 $a -->
                                                 <placement code="ca_attribute_marc538a">
