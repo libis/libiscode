@@ -3,7 +3,7 @@ require_once(__CA_MODELS_DIR__.'/ca_metadata_elements.php');
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/KLogger.php');
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/libisCodeXML.php');
 
-class transformation {
+class marcXMLGeneration {
     private $log;
     private $xml;
 
@@ -40,7 +40,7 @@ class transformation {
             return $this->xml;
     }
 
-    function marcTransformation($records){
+    function marcGeneration($marcRecords){
 
         $directoryPath = __CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/files/'.round(microtime(true) * 1000);
         if (!file_exists($directoryPath))
@@ -56,32 +56,40 @@ class transformation {
 
             $this->xml->initXML($marcXML);      //init XML for Marc
 
-            $recordIdNo = $records['marc001'];
-            $this->initRecord($marcXML);        //init a record
+            foreach($marcRecords as $record){
+                print '<pre>';
+                //print_r($record);
+                print '</pre>';
 
-            //add record's header fields
-            $leaderString = $this->generateLeaderValue($records);
-            //$this->processMarcElement( 'leader', $leaderString, $marcXML, $recordNumber);        //create leader node
-            $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);
-            //$this->processMarcElement( 'controlefield', $recordIdNo, $marcXML, $recordNumber);        //create controlfield node
-            $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber, '001');
+                $records = $record;
+                $recordIdNo = $records['marc001'];
+                $this->initRecord($marcXML);        //init a record
 
-            //add record's subfields
-            foreach($records as $element=>$value){
+                //add record's header fields
+                $leaderString = $this->generateLeaderValue($records);
+                $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);      //create leader node
+                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber);  //create controlfield node
 
-                if(strpos($element, 'leader') === false && strpos($element, 'marc001') === false
-                    && strpos($element, 'edm') === false)       //marc001 == controlefield, edm filters out edm records
-                        $subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
+                //add record's subfields
+                foreach($records as $element=>$value){
 
-                if(!isset($subField))
-                    $this->log->logError('Element[ Code:'.$element. ', Value:'.$value.'] could not be transformed' );
-                else
-                    $this->log->logInfo('Element[ Code:'.$element. ', Value:'.$value.'] successfuly transformed' );
+                    if(strpos($element, 'leader') === false && strpos($element, 'marc001') === false
+                        && strpos($element, 'edm') === false)       //marc001 == controlefield, edm filters out edm records
+                    $subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
+
+                    if(!isset($subField))
+                        $this->log->logError('Element[ Code:'.$element. ', Value:'.$value.'] could not be transformed' );
+                    else
+                        $this->log->logInfo('Element[ Code:'.$element. ', Value:'.$value.'] successfuly transformed' );
+                }
+                $recordNumber++;
             }
+
         }
         else{
             $this->log->logInfo('Marc XML file creation failed');
         }
+        return array($directoryPath, $fileName);
     }
 
     function processMarcElement( $elementCode, $elementValue, $marcXML, $recordNumber){
@@ -93,7 +101,6 @@ class transformation {
         else
             $subFieldTag =null;
 
-        //$addedNode =  $this->xml->addNode($marcXML, $elementCode, $elementValue, $recordNumber);
         $nodeName = 'datafield';
         $addedNode =  $this->xml->addNode($marcXML, $nodeName, $elementValue, $recordNumber, $dataFieldTag, $subFieldTag);
         return $addedNode;

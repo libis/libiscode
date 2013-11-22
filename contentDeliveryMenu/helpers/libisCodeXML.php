@@ -65,13 +65,14 @@ class libisCodeXML {
 
         if(!isset($recordNumber))
             $elementAddto = $domDoc->documentElement;       //add to root node if no recordnumber given
-        else{       //find record to add either its header or subfields
+        else{                                               //find record to add either its header or subfields
             $params = $domDoc->getElementsByTagName('record');
             $elementAddto = $params->item($recordNumber-1);
         }
 
         if(isset($elementAddto)){
             $node = $domDoc->createElement($elementtoAdd);
+
             if(isset($tagValue)){
                 $tagAttribute = $domDoc->createAttribute('tag');
                 $tagAttribute->value = $tagValue;
@@ -79,6 +80,32 @@ class libisCodeXML {
             }
 
             $chidNode = $elementAddto->appendChild($node);
+
+            //create empty indicators
+            if($elementtoAdd === 'datafield'){
+                $ind1Attribute = $domDoc->createAttribute('ind1');
+                $ind1Attribute->value = ' ';
+                $node->appendChild($ind1Attribute);
+
+                $ind2Attribute = $domDoc->createAttribute('ind2');
+                $ind2Attribute->value = ' ';
+                $node->appendChild($ind2Attribute);
+            }
+
+            //add controlfield value
+            if(isset($value)){
+                if($elementtoAdd === 'controlefield'){
+                    $ctrlNodeValue = $domDoc->createTextNode($value);
+                    $chidNode->appendChild($ctrlNodeValue);
+                }
+
+                if(($elementtoAdd === 'leader')){
+                    $leaderNodeValue = $domDoc->createTextNode($value);
+                    $chidNode->appendChild($leaderNodeValue);
+                }
+
+            }
+
             if(isset($subNodeTag)){
                 $subFieldNode = $domDoc->createElement('subfield');
 
