@@ -11,7 +11,7 @@
 
     echo "<center><br><b>"."Preview"."</b><br></center>";
     echo "<br><b>"."Preview Record"."</b><br>";
-    echo "Response :".$previewService -> getTemplates();
+    echo "Response :".$previewService -> getTemplates('libis');
 
 ?>
 

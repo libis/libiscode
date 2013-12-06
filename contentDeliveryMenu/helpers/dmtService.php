@@ -35,4 +35,33 @@ class dmtService {
         }
     }
 
+    public  function requestStatus($requestId){
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $this->url_base.$this->url_status_record.'?request_id='.$requestId
+        ));
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $responseData = json_decode($response);
+
+        if($httpCode === self::SUCCESS){
+            return $responseData->{'status_code'};
+        }
+    }
+
+    public  function fetchRecord($requestId){
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $this->url_base.$this->url_fetch_record.'?request_id='.$requestId
+        ));
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if($httpCode === self::SUCCESS){
+           return $response;
+        }
+    }
+
 }

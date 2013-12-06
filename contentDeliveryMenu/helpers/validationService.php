@@ -7,57 +7,28 @@
  */
 
 class validationService {
-    private $urlValidation = 'http://euinside.semantika.si/validation/validate';
-    private $urlValidation2 = 'http://app.asp.hunteka.hu:5080/eck-validation-module/profiles/lido/validate/';
-    private $urlProfileList = 'http://euinside.semantika.si/validation/profiles';
+    private $urlValidationMonguz = 'http://euinside.asp.monguz.hu/eck-validation-servlet/validation';
+    private $monguzHost = 'euinside.asp.monguz.hu';
 
-    function validate(){
+    private  $urlValidationSemnatika = 'http://euinside.semantika.si';
+    private  $semantikaHost = 'euinside.semantika.si';
 
+    function validateRecords($recordFile, $provider, $requestTitle, $profileName){
         $fields = array(
-            'Name' => 'MYRecord',
-            //'XmlDocument' => '@C:/Kaam/Projecten/Europeana/EuropeanaInside/REST Services/validationrecords/lido1.xml'
-            'XmlDocument' => 'a'
+            'Name'          => $requestTitle,
+            'record'        => '@'.$recordFile,
+            'provider'      => $provider,
+            'profileName'   => $profileName
         );
-        $requestParameter = json_encode($fields);
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $this->urlValidation)
+                CURLOPT_URL => $this->urlValidationMonguz)
         );
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Host: euinside.semantika.si',
-                'User-Agent: Fiddler',
-                'Content-Type: application/json; charset=utf-8')
+                'Host:'.$this->monguzHost,
+                'Content-Type: 	multipart/form-data')
         );
-        curl_setopt($curl,CURLOPT_POSTFIELDS, $requestParameter);
-
-        $result = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        if($responseCode != 200)
-            return $responseCode;
-        else
-            return $result;
-    }
-
-    function validate2(){
-
-        $fields = array(
-            'Record' => '@C:/Kaam/Projecten/Europeana/EuropeanaInside/REST Services/validationrecords/lido1.xml'
-            //'Record' => 'test'
-        );
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $this->urlValidation2)
-        );
-
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Content-Type: text/xml')
-        );
-
         curl_setopt($curl,CURLOPT_POSTFIELDS, $fields);
 
         $result = curl_exec($curl);
@@ -67,58 +38,44 @@ class validationService {
             return $responseCode;
         else
             return $result;
+
     }
 
-    function getProfiles(){
-        $htmlResult="";
-        $url = $this->urlProfileList;
+    function validateRecordsSemantika($recordFile, $provider, $requestTitle, $profileName){
+
+        $fields = array(
+            'Name'          => $requestTitle,
+            'xmldoc'        => '@'.$recordFile,
+            'XmlDocument'      => '@'.$recordFile
+//            'Source'   => $profileName
+        );
+
+        $requestParameter = json_encode($fields);
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $url)
+                CURLOPT_URL => $this->urlValidationSemnatika.'/validation/validate')
         );
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                'Host: localhost:13987',
+                'User-Agent: Fiddler',
+                'Content-Type: application/json; charset=utf-8')
+        );
+        curl_setopt($curl,CURLOPT_POSTFIELDS, $requestParameter);
+
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        return $responseCode;
 
-        if($responseCode == 200){
-            $responseData = json_decode($result);
-            if(is_null($responseData)){
-                $htmlResult .= "null<br>";
-            }else{
-                foreach ($responseData as $name => $value) {
-                    $htmlResult .= $name . ':'.$value."<br>";
-                }
-            }
-        }
-        else{
-            $htmlResult .= "Response Code = ".$responseCode."<br>";
-            if(is_null($result))
-                $htmlResult .= "null"."<br>";
-            else
-                $htmlResult .= "Request Unsuccessful: ".$result."<br>";
-        }
+//        if($responseCode != 200)
+//            return $responseCode;
+//        else
+//            return $result;
 
-        curl_close($curl);
-
-        return $htmlResult;
     }
 
-    function getProfileByName($profileName){
-        $htmlResult="";
-        $url = $this->urlProfileList."/".$profileName;
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $url)
-        );
-        $result = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        if($responseCode != 200)
-            return $responseCode;
-        else
-            return json_decode($result);
-    }
 
 
 }

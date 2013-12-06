@@ -136,6 +136,7 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                     echo '<a href="file:///'.$marcFilePath.'">'.$marcResult[1].'.xml'.'</a>';
                     echo '<input type ="hidden" name="generatedXMLFile" value='.$marcFilePath.'>';
                     echo '<input type ="hidden" name="sourceFormat" value='.$_POST['selectGenerationFormat'].'>';
+                    echo '<input type ="hidden" name="dataDirectory" value='.$marcResult[0].'>';
                 echo '</td>';
 
                 echo '<td style="text-align: left">';
@@ -161,7 +162,26 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
     echo '<div>';
     $requestId = $dmtService->mappingSingleFile($_POST['generatedXMLFile'], $mappingFile, $_POST['sourceFormat'], $_POST['selectTransformFormat']);
     if(isset($requestId)){
-        echo 'Request Id: '.$requestId.'<br>';
+        echo '-> Request Id: '.$requestId.'<br>';
+        $statusResponse = $dmtService->requestStatus($requestId);
+        if(isset($statusResponse)){
+            if($statusResponse === '2'){        //status=2    record(s) have been transformed/mapped
+                echo '-> Record is ready to be fetch. <br>';
+                $fileInfo = explode('Transformed_', $requestId);
+                if(isset($fileInfo[1]))
+                    $fileName = $_POST['selectTransformFormat'].$fileInfo[1];
+                else
+                    $fileName = $_POST['selectTransformFormat'].'temp.xml';
+
+                $transformedResult = $dmtService->fetchRecord($requestId);
+                $dataDirectory = $_POST['dataDirectory'].'/';
+                echo '-> Retrieved Record(s) File: '.$dataDirectory.$fileName;
+                file_put_contents($dataDirectory.$fileName,$transformedResult);
+
+            }
+            else
+                echo 'Request('.$requestId.') yet to be processed.';
+        }
     }
     else
         echo 'Error in requst, please try again';
