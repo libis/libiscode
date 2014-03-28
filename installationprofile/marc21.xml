@@ -254,7 +254,7 @@
 			  <labels>
 			    <label locale="en_US" preferred="1">
 			      <name_singular>MARC 245 $ b: alternate</name_singular>
-			      <name_plural>MARC 245 $ b: alternatealternates</name_plural>
+			      <name_plural>MARC 245 $ b: alternate</name_plural>
 			    </label>
 			  </labels>
 			</item>
@@ -263,6 +263,14 @@
 			    <label locale="en_US" preferred="1">
 			      <name_singular>MARC 246 $a: parallel</name_singular>
 			      <name_plural>MARC 246 $a: parallel</name_plural>
+			    </label>
+			  </labels>
+			</item>
+			<item idno="marc243a" enabled="1" default="0">
+			  <labels>
+			    <label locale="en_US" preferred="1">
+			      <name_singular>MARC 243 $a: Collective Uniform Title</name_singular>
+			      <name_plural>MARC 243 $a: Collective Uniform Title</name_plural>
 			    </label>
 			  </labels>
 			</item>
@@ -730,6 +738,20 @@
 						<labels>
 							<label locale="en_US">
 								<name>MARC 773 $t: Title</name>
+								<description>dcterms:isPartOf</description>
+							</label>
+						</labels>
+						<settings>
+							<setting name="fieldWidth">40</setting>
+							<setting name="fieldHeight">1</setting>
+							<setting name="minChars">0</setting>
+							<setting name="maxChars">65535</setting>
+						</settings>
+                                                </metadataElement>
+                                                <metadataElement code="marc773g" datatype="Text">
+						<labels>
+							<label locale="en_US">
+								<name>MARC 773 $g: related part</name>
 								<description>dcterms:isPartOf</description>
 							</label>
 						</labels>
@@ -2606,7 +2628,7 @@
                                                 <placement code="ca_attribute_marc260c">
                                                 	<bundle>ca_attribute_marc260c</bundle>
                                                 </placement>
-                                                <!-- 260 $a -->
+                                                <!-- MARC 260 $a -->
                                                 <placement code="ca_marc260a">
                                                         <bundle>ca_places</bundle>
                                                         <settings>
@@ -2628,7 +2650,7 @@
                                                 <placement code="ca_attribute_marc260g">
                                                 	<bundle>ca_attribute_marc260g</bundle>
                                                 </placement>
-                                                <!-- 260 $e -->
+                                                <!-- MARC 260 $e -->
                                                 <placement code="ca_marc260e">
                                                         <bundle>ca_places</bundle>
                                                         <settings>
@@ -2779,7 +2801,7 @@
                                                 <placement code="ca_attribute_conmarc774nto">
                                                 	<bundle>ca_attribute_conmarc774nto</bundle>
                                                 </placement>
-                                                <!-- MARC 773 $n + $t  + $o-->
+                                                <!-- MARC 773 $g + $n + $t  + $o-->
                                                 <placement code="ca_attribute_conmarc773nto">
                                                 	<bundle>ca_attribute_conmarc773nto</bundle>
                                                 </placement>
