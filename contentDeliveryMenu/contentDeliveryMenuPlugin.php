@@ -75,8 +75,8 @@
 			$va_menu_items[$menu_3] = array(
 				'displayName' => _t($menu_3),
 				"default" => array(
-					'module' => 'contentDeliveryMenu', 
-					'controller' => 'ContentDelivery', 
+					'module' => 'contentDeliveryMenu',
+					'controller' => 'ContentDelivery',
 					'action' => 'Index/universe/'.$menu_3
 				)
 			);
@@ -111,12 +111,30 @@
                 )
             );
 
-			$pa_menu_bar['statisticsViewer_menu'] = array(
+            $menu_7 = _t('Data Push');
+            $va_menu_items[$menu_7] = array(
+                'displayName' => _t($menu_7),
+                "default" => array(
+                    'module' => 'contentDeliveryMenu',
+                    'controller' => 'ContentDelivery',
+                    'action' => 'Index/universe/'.$menu_7,
+                )
+            );
+
+            $menu_8 = _t('Datapush Result');
+            $va_menu_items[$menu_8] = array(
+                'displayName' => _t($menu_8),
+                "default" => array(
+                    'module' => 'contentDeliveryMenu',
+                    'controller' => 'ContentDelivery',
+                    'action' => 'Index/universe/'.$menu_8
+                )
+            );
+
+            $pa_menu_bar['libiscode_menu'] = array(
 				'displayName' => _t('LibisCoDe'),
 				'navigation' => $va_menu_items
 			);			
-
-	
 
 			return $pa_menu_bar;
 		}

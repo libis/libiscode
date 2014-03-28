@@ -115,13 +115,23 @@
                         $view_to_rende = 'setmanager_html.php';
                         break;
                     case 'Validation':
-                        //View for Set Manager Service
+                        //View for Validation  Service
                         $view_to_rende = 'validation_html.php';
                         break;
                     case 'Preview':
-                        //View for Set Manager Service
+                        //View for Preview Service
                         $view_to_rende = 'preview_html.php';
                         break;
+                    case 'Data Push':
+                        //View for Data Push Service
+                        $view_to_rende = 'datapush_html.php';
+                        break;
+
+                    case 'Datapush Result':
+                        //View for Data Push Results
+                        $view_to_rende = 'datapushresult_html.php';
+                        break;
+
 					default:
 						$view_to_rende = 'content_delivery_home_html.php';
 						break;

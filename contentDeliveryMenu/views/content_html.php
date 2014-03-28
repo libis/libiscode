@@ -6,7 +6,6 @@ require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/KLogger.p
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/marcXMLGeneration.php');
 
 define('CA_OBJECT_TABLE_NUMBER', 57);
-
 $log = KLogger::instance(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/logging/', 7);
 $marcXMLFile = '';
 
@@ -36,7 +35,9 @@ $o_db = $t_set->getDb();
                            border-color:#000000; border-style: solid;">
                 <tr>
 
-                    <form action="/providence/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List" method="post">
+<!--                    <form action="collaccess/providencelocal/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List" method="post">-->
+
+                    <form action="<?php echo dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List"; ?>" method="post">
                     <td align="left">
                         <strong style="font-size: 10px;">SET:</strong>
                         <select name="selectSet"">
@@ -129,7 +130,8 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
     echo '<div>';
         echo "<table border='0' width='100%' style='border-width: 1px;
                                border-color:#000000; border-style: solid;'>";
-        echo '<form action="/providence/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List" method="post">';
+        $formAction = dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List";
+        echo "<form action='$formAction' method='post'>";
             echo "<tr style='text-align: center'>";
                 echo '<td style="text-align: left">';
                     echo '<strong style="font-size: 10px;">Generated '.strtoupper($_POST['selectGenerationFormat']).' XML File: </strong>';
@@ -158,7 +160,7 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
 
 if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
     $dmtService = new dmtService();
-    $mappingFile = 'C:/xampp/htdocs/providence/app/plugins/contentDeliveryMenu/helpers/marcmappingrules.csv';
+    $mappingFile = __CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/marcmappingrules.csv';
     echo '<div>';
     $requestId = $dmtService->mappingSingleFile($_POST['generatedXMLFile'], $mappingFile, $_POST['sourceFormat'], $_POST['selectTransformFormat']);
     if(isset($requestId)){

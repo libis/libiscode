@@ -15,8 +15,8 @@
     echo '<div>';
         echo "<table border='0' width='100%' style='border-width: 1px;
                                                border-color:#000000; border-style: solid;'>";
-        echo '<form action="/providence/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Validation" method="post">';
-
+        $formAction = dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Validation";
+        echo "<form action='$formAction' method='post'>";
             foreach(new RecursiveIteratorIterator($it) as $file)
             {
                 if (in_array(strtolower(array_pop(explode('.', $file))), $display)){

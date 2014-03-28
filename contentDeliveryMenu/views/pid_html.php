@@ -3,7 +3,6 @@
     require_once(__CA_BASE_DIR__."/app/plugins/contentDeliveryMenu/helpers/pidStorage.php");
     require_once(__CA_LIB_DIR__."/core/Logging/Eventlog.php");
 
-
 	echo _t("<h1>Libis Content Delivery System</h1>\n");
 	echo _t("<h2>Persistent Identifiers (PIDs) Service</h2>\n");
 
@@ -21,8 +20,8 @@
     echo '<div>';
         echo "<table border='0' width='100%' style='border-width: 1px;
                                        border-color:#000000; border-style: solid;'>";
-        echo '<form action="/providence/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/PID Generation" method="post">';
-
+        $formAction = dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/PID Generation";
+        echo "<form action='$formAction' method='post'>";
             foreach(new RecursiveIteratorIterator($it) as $file)
             {
                 if (in_array(strtolower(array_pop(explode('.', $file))), $display)){

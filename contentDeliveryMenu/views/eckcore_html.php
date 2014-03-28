@@ -7,8 +7,8 @@
 
     echo "<center><br><b>"."ECK-Core"."</b><br></center>";
 
-    echo "<br><b>"."Supported Languages"."</b><br>";
-	echo $eckCoreService -> eckLanguageSupport();
+//  echo "<br><b>"."Supported Languages"."</b><br>";
+//	echo $eckCoreService -> eckLanguageSupport();
 	
     echo "<br><b>"."Available Functions"."</b><br>";
 	echo $eckCoreService -> eckFeatureList();
@@ -22,7 +22,7 @@
     echo "<br><b>"."Record by Persistent Id"."</b><br>";
 	echo $eckCoreService ->eckCore(456,"/KIPersistence/persistence","lookupRecordByPersistentId");	
 
-    echo "<br><b>"."Insert Record"."</b><br>";
-    echo $eckCoreService -> eckInsertRecord();
+//    echo "<br><b>"."Insert Record"."</b><br>";
+//    echo $eckCoreService -> eckInsertRecord();
 
 

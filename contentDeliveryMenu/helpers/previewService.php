@@ -7,10 +7,10 @@
 class previewService {
 
     private $urlPreviewMonguz = 'http://euinside.asp.monguz.hu/eck-preview-module/Preview';
-
     function getTemplates($provider){
 
         $url = $this->urlPreviewMonguz.'/'.$provider.'/templates';
+//        $url = $this->urlPreviewMonguz.'/'.$provider.'/single/preview/default/';
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
