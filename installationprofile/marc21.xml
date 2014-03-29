@@ -2105,6 +2105,31 @@
                                 </restriction>
                         </typeRestrictions>
                 </metadataElement>
+                <!-- MARC 340 $b -->
+                <metadataElement code="marc340b" datatype="Text">
+			<labels>
+				<label locale="en_US">
+					<name>MARC 340$b: Dimensions</name>
+					<description>MARC 340 $b: dcterms:extent</description>
+				</label>
+			</labels>
+			<settings>
+				<setting name="fieldWidth">80</setting>
+				<setting name="fieldHeight">1</setting>
+				<setting name="minChars">0</setting>
+				<setting name="maxChars">65535</setting>
+			</settings>
+                        <typeRestrictions>
+                                <restriction code="r1">
+                                        <table>ca_objects</table>
+                                        <settings>
+                                                <setting name="minAttributesPerRow">0</setting>
+                                                <setting name="maxAttributesPerRow">100</setting>
+                                                <setting name="minimumAttributeBundlesToDisplay">0</setting>
+                                        </settings>
+                                </restriction>
+                        </typeRestrictions>
+                </metadataElement>
                 <!-- MARC 338 $a -->
                 <metadataElement code="marc338a" datatype="Text">
 			<labels>
@@ -2739,6 +2764,10 @@
                                                 <!-- MARC 340 $a -->
                                                 <placement code="ca_attribute_marc340a">
                                                 	<bundle>ca_attribute_marc340a</bundle>
+                                                </placement>
+                                                <!-- MARC 340 $b -->
+                                                <placement code="ca_attribute_marc340b">
+                                                	<bundle>ca_attribute_marc340b</bundle>
                                                 </placement>
                                                 <!-- MARC 338 $a -->
                                                 <placement code="ca_attribute_marc338a">
