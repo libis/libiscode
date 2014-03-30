@@ -3606,6 +3606,16 @@
                                         <subTypeLeft></subTypeLeft>
                                         <subTypeRight></subTypeRight>
                                 </type>
+                                <type code="marc111c" default="0">
+                                        <labels>
+                                                <label locale="en_US">
+                                                        <typename>is meeting place of</typename>
+                                                        <typename_reverse>has met at</typename_reverse>
+                                                </label>
+                                        </labels>
+                                        <subTypeLeft></subTypeLeft>
+                                        <subTypeRight></subTypeRight>
+                                </type>
                                 <type code="europeanaProvided" default="0">
                                         <labels>
                                                 <label locale="en_US">
@@ -3782,8 +3792,8 @@
                                 <type code="marc655a" default="0">
                                         <labels>
                                                 <label locale="en_US">
-                                                        <typename>has subject</typename>
-                                                        <typename_reverse>is subject of</typename_reverse>
+                                                        <typename>has type</typename>
+                                                        <typename_reverse>is type of</typename_reverse>
                                                 </label>
                                         </labels>
                                         <subTypeLeft></subTypeLeft>
@@ -3842,16 +3852,6 @@
                                                 <label locale="en_US">
                                                         <typename>is related to</typename>
                                                         <typename_reverse>is related to</typename_reverse>
-                                                </label>
-                                        </labels>
-                                        <subTypeLeft></subTypeLeft>
-                                        <subTypeRight></subTypeRight>
-                                </type>
-                                <type code="marc111c" default="1">
-                                        <labels>
-                                                <label locale="en_US">
-                                                        <typename>is meeting place of</typename>
-                                                        <typename_reverse>has met at</typename_reverse>
                                                 </label>
                                         </labels>
                                         <subTypeLeft></subTypeLeft>
