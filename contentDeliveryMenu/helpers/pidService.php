@@ -6,9 +6,17 @@
  */
 
 class pidService {
-    private $urlPIDLookup = 'http://euinside.semantika.si/pid/lookup/';
-    private $urlPIDGeneration = 'http://euinside.semantika.si/pid/generate';
 
+    private $url_pid_generation;
+    private $url_pid_lookup;
+    private $url_proxy;
+    private $pid_host;
+
+    # Constructor
+    public function __construct()
+    {
+        $this->loadPIDConfigurations(dirname(__FILE__).'/config/libiscode.conf');
+    }
 
     function generatePID($institutionUrl, $recordType, $accessionNumber ){
         $array = array('InstitutionUrl' => $institutionUrl,
@@ -18,10 +26,11 @@ class pidService {
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $this->urlPIDGeneration)
+                CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_pid_generation)
         );
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Host: euinside.semantika.si',
+                'Host: '.$this->pid_host,
                 'Content-Type: application/json; charset=utf-8')
         );
         curl_setopt($curl,CURLOPT_POSTFIELDS, $requestParameter);
@@ -42,7 +51,8 @@ class pidService {
         $curl = curl_init();
         curl_setopt_array($curl, array(
         CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => $this->urlPIDLookup.$pid)
+                CURLOPT_PROXY => $this->url_proxy,
+        CURLOPT_URL => $this->url_pid_lookup.'/'.$pid)
         );
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -68,6 +78,17 @@ class pidService {
         curl_close($curl);
 
        return $htmlResult;
+    }
+
+    public function loadPIDConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+
+        $this->url_pid_generation = $o_config->get('url_pid_generation');
+        $this->url_pid_lookup = $o_config->get('url_pid_lookup');
+        $this->url_proxy = $o_config->get('url_proxy');
+        $this->pid_host = $o_config->get('pid_host');
+
+
     }
 
 
