@@ -4,15 +4,25 @@
  * Date: 22/11/13
  */
 
+
 class dmtService {
     const SUCCESS   =   200;
 
-    protected $url_base  = 'http://localhost/euInside/dmt.php/DataMapping';
-    protected $url_transform = '/Libis/my_tansfer/Transform';
-    protected $url_fetch_record = '/Libis/my_tansfer/fetch';
-    protected $url_status_record = '/Libis/my_tansfer/status';
+    protected $url_base;
+    protected $url_proxy;
 
-    public  function mappingSingleFile($recordFile, $mappingFile, $sourceFormat, $targetFormat){
+    protected $url_transform;
+    protected $url_fetch_record;
+    protected $url_status_record;
+
+
+    # Constructor
+    public function __construct()
+    {
+        $this->loadLibisCodeConfigurations(dirname(__FILE__).'/config/libiscode.conf');
+    }
+
+    public function mappingSingleFile($recordFile, $mappingFile, $sourceFormat, $targetFormat){
         $ch = curl_init();
         $fields = array(
             'record' => '@'.$recordFile,
@@ -24,6 +34,7 @@ class dmtService {
         curl_setopt_array($ch, array(
             CURLOPT_POST => 1,
             CURLOPT_URL => $this->url_base.$this->url_transform,
+            CURLOPT_PROXY => $this->url_proxy,
             CURLOPT_POSTFIELDS => $fields,
             CURLOPT_RETURNTRANSFER => 1
         ));
@@ -39,6 +50,7 @@ class dmtService {
         $ch = curl_init();
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_PROXY => $this->url_proxy,
             CURLOPT_URL => $this->url_base.$this->url_status_record.'?request_id='.$requestId
         ));
         $response = curl_exec($ch);
@@ -54,6 +66,7 @@ class dmtService {
         $ch = curl_init();
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_PROXY => $this->url_proxy,
             CURLOPT_URL => $this->url_base.$this->url_fetch_record.'?request_id='.$requestId
         ));
         $response = curl_exec($ch);
@@ -62,6 +75,17 @@ class dmtService {
         if($httpCode === self::SUCCESS){
            return $response;
         }
+    }
+
+    public function loadLibisCodeConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+
+        $this->url_base = $o_config->get('dmt_url_base');
+        $this->url_proxy = $o_config->get('url_proxy');
+
+        $this->url_transform = $o_config->get('url_transform');
+        $this->url_fetch_record = $o_config->get('url_fetch_record');
+        $this->url_status_record = $o_config->get('url_status_record');
     }
 
 }
