@@ -135,7 +135,9 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
             echo "<tr style='text-align: center'>";
                 echo '<td style="text-align: left">';
                     echo '<strong style="font-size: 10px;">Generated '.strtoupper($_POST['selectGenerationFormat']).' XML File: </strong>';
-                    echo '<a href="file:///'.$marcFilePath.'">'.$marcResult[1].'.xml'.'</a>';
+                    echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                        "/app/plugins/contentDeliveryMenu/files".end(explode('files', $marcResult[0])).
+                        "/".$marcResult[1].'.xml'.'>'.$marcResult[1].'.xml'.'</a>';
                     echo '<input type ="hidden" name="generatedXMLFile" value='.$marcFilePath.'>';
                     echo '<input type ="hidden" name="sourceFormat" value='.$_POST['selectGenerationFormat'].'>';
                     echo '<input type ="hidden" name="dataDirectory" value='.$marcResult[0].'>';
@@ -177,7 +179,10 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
 
                 $transformedResult = $dmtService->fetchRecord($requestId);
                 $dataDirectory = $_POST['dataDirectory'].'/';
-                echo '-> Retrieved Record(s) File: '.$dataDirectory.$fileName;
+                echo '-> Retrieved Record(s) File: ';
+                echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                    "/app/plugins/contentDeliveryMenu/files".end(explode('files', $dataDirectory)).
+                    $fileName.'>'.$fileName.'</a>';
                 file_put_contents($dataDirectory.$fileName,$transformedResult);
 
             }
@@ -186,7 +191,7 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
         }
     }
     else
-        echo 'Error in requst, please try again';
+        echo 'Error in request, please try again';
 
     echo '</div>';
 }

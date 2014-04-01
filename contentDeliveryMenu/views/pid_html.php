@@ -99,6 +99,7 @@
                         'MESSAGE' => _t('EDM File: %1', $edmFile)
                     ));
 
+                    $edmFile = trim(trim($edmFile, '.'));
                     $result = $pidStorage->generateRecordPID($edmFile, $pidCode);
 
 //                    $result = $pidStorage->generateRecordsPID($edmFile, $pidCode);

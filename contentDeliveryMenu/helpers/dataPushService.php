@@ -54,6 +54,7 @@ class dataPushService {
     }
 
     function pushData($dataFiletoPush, $dataFormat){
+        $dataFiletoPush = trim(trim($dataFiletoPush, '.'));
         $this->getServiceDocument();
 
         unset($this->dataPushOutput);
