@@ -6,7 +6,15 @@ require("swordapperrordocument.php");
 require("swordapplibraryversion.php");
 
 class SWORDAPPClient {
-	
+    private $url_proxy;
+
+    # Constructor
+    public function __construct()
+    {
+        $this->loadDataPushClientConfigurations(__CA_BASE_DIR__.
+            '/app/plugins/contentDeliveryMenu/helpers/config/libiscode.conf');
+    }
+
 	// Request a servicedocument at the specified url, with the specified credentials,
 	// and on-behalf-of the specified user.
 	function servicedocument($sac_url, $sac_u, $sac_p, $sac_obo) {
@@ -14,7 +22,9 @@ class SWORDAPPClient {
 		$sac_curl = curl_init();
 		
 		curl_setopt($sac_curl, CURLOPT_RETURNTRANSFER, true);
-		// To see debugging infomation, un-comment the following line
+        curl_setopt($sac_curl, CURLOPT_PROXY, $this->url_proxy); //proxy
+
+        // To see debugging infomation, un-comment the following line
 		//curl_setopt($sac_curl, CURLOPT_VERBOSE, 1);	
 		
 		curl_setopt($sac_curl, CURLOPT_URL, $sac_url);
@@ -61,6 +71,7 @@ class SWORDAPPClient {
 		
 		curl_setopt($sac_curl, CURLOPT_URL, $sac_url);
 		curl_setopt($sac_curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($sac_curl, CURLOPT_PROXY, $this->url_proxy); //proxy
 		curl_setopt($sac_curl, CURLOPT_POST, true);
 		if(!empty($sac_u) && !empty($sac_p)) {
 	                curl_setopt($sac_curl, CURLOPT_USERPWD, $sac_u . ":" . $sac_p);
@@ -137,6 +148,11 @@ class SWORDAPPClient {
 		// Return the deposit object
 		return $sac_dresponse;
 	}
+
+    public function loadDataPushClientConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+        $this->url_proxy = $o_config->get('url_proxy');
+    }
 }
 
 ?>
