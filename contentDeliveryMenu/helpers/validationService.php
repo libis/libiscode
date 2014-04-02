@@ -8,10 +8,10 @@
 
 class validationService {
 
-    private $url_validation_monguz;
-    private $url_validation_semantika;
-    private $validation_host_monguz;
-    private $validation_host_semantika;
+    private $url_validation;
+    private $url_validation_alternate;
+    private $validation_host;
+    private $validation_alternate_host;
     private $url_proxy;
 
     # Constructor
@@ -20,7 +20,7 @@ class validationService {
         $this->loadValidationConfigurations(dirname(__FILE__).'/config/libiscode.conf');
     }
 
-    function validateRecordsMonguz($recordFile, $provider, $requestTitle, $profileName){
+    function validateRecords($recordFile, $provider, $requestTitle, $profileName){
         $fields = array(
             'Name'          => $requestTitle,
             'record'        => '@'.$recordFile,
@@ -31,10 +31,10 @@ class validationService {
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_PROXY => $this->url_proxy,
-                CURLOPT_URL => $this->url_validation_monguz)
+                CURLOPT_URL => $this->url_validation)
         );
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Host:'.$this->validation_host_monguz,
+                'Host:'.$this->validation_host,
                 'Content-Type: 	multipart/form-data')
         );
         curl_setopt($curl,CURLOPT_POSTFIELDS, $fields);
@@ -48,7 +48,7 @@ class validationService {
 
     }
 
-    function validateRecordsSemantika($recordFile, $provider, $requestTitle, $profileName){
+    function validateRecordsAlternate($recordFile, $provider, $requestTitle, $profileName){
         $fields = array(
             'Name'          => $requestTitle,
             'xmldoc'        => '@'.$recordFile,
@@ -62,10 +62,10 @@ class validationService {
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_PROXY => $this->url_proxy,
-                CURLOPT_URL => $this->url_validation_semantika.'/validation/validate',
+                CURLOPT_URL => $this->url_validation_alternate.'/validation/validate',
                 CURLOPT_POSTFIELDS => $requestParameter,
                 CURLOPT_HTTPHEADER => array(
-                    'Host:'.$this->validation_host_semantika,
+                    'Host:'.$this->validation_alternate_host,
                     'User-Agent: Fiddler',
                     'Content-Type: application/json; charset=utf-8'))
         );
@@ -83,10 +83,10 @@ class validationService {
     public function loadValidationConfigurations($conf_file_path){
         $o_config = Configuration::load($conf_file_path);
 
-        $this->url_validation_monguz = $o_config->get('url_validation_monguz');
-        $this->url_validation_semantika = $o_config->get('url_validation_semantika');
-        $this->validation_host_monguz = $o_config->get('validation_host_monguz');
-        $this->validation_host_semantika = $o_config->get('validation_host_semantika');
+        $this->url_validation = $o_config->get('url_validation');
+        $this->url_validation_alternate = $o_config->get('url_validation_alternate');
+        $this->validation_host = $o_config->get('validation_host');
+        $this->validation_alternate_host = $o_config->get('validation_alternate_host');
         $this->url_proxy = $o_config->get('url_proxy');
 
     }
