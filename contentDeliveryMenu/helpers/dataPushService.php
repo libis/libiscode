@@ -3,42 +3,37 @@
  * User: NaeemM
  * Date: 17/01/14
  */
-//require_once(__CA_BASE_DIR__."/app/plugins/contentDeliveryMenu/helpers/parallelism/Pooling.php");
-//require_once(__CA_LIB_DIR__."/core/Logging/Eventlog.php");
-//require("/datapush/swordappclient.php");
 require_once(__CA_BASE_DIR__."/app/plugins/contentDeliveryMenu/helpers/datapush/swordappclient.php");
-
+//require_once(__CA_LIB_DIR__."/core/Logging/Eventlog.php");
 
 class dataPushService {
 
     private $swordAppClient;
 
-    private $urlSwordServiceDoc;
     private $urlDeposit;
 
     private $packageFormat;
     private $acceptedFormats = array();
 
-    private $user;
-    private $password;
-    private $onBehalfOf;
-
     public  $dataPushOutputLogFile;
     private $dataPushOutputHeaders = array();
     private $dataPushOutput = array();
+
+    private $url_sword_service_doc;
+    private $datapush_on_behalf_of;
+    private $datapush_password;
+    private $collection_title;
+    private $datapush_user;
 
     private $e_log;
 
     public function __construct(){
         $this->dataPushOutputLogFile = __CA_BASE_DIR__.
             "/app/plugins/contentDeliveryMenu/files/datapushoutput/datapushoutput".round(microtime(true) * 1000).".csv";
-        $this->urlSwordServiceDoc = "http://euinside.k-int.com/dpp/sword/servicedocument";
         $this->swordAppClient = new SWORDAPPClient();
         $this->dataPushOutputHeaders = array('Data File', 'Resource Id', 'Resource URL');
-//        $this->e_log = new Eventlog();
-        $this->onBehalfOf = 'LBIS';
-        $this->password = 'lbis';
-        $this->user = 'LBIS';
+
+        $this->loadDataPushConfigurations(dirname(__FILE__).'/config/libiscode.conf');
     }
 
 
@@ -66,12 +61,12 @@ class dataPushService {
             return;
         }
         $this->dataPushOutput [] = rtrim(basename($dataFiletoPush), '.');
-        if(isset($this->urlDeposit, $this->user, $this->password, $dataFiletoPush,$dataFormat)){
+        if(isset($this->urlDeposit, $this->datapush_user, $this->datapush_password, $dataFiletoPush,$dataFormat)){
 
             if (in_array($dataFormat, $this->acceptedFormats))
             {
                 $depositResponse = $this->swordAppClient->deposit(
-                    $this->urlDeposit, $this->user, $this->password, $this->onBehalfOf, $dataFiletoPush, $this->packageFormat, $dataFormat);
+                    $this->urlDeposit, $this->datapush_user, $this->datapush_password, $this->datapush_on_behalf_of, $dataFiletoPush, $this->packageFormat, $dataFormat);
                 if ($depositResponse->sac_status == 201) {  //successfully created on sword server
 
                     $resourceId='';
@@ -110,17 +105,16 @@ class dataPushService {
     }
 
     function getServiceDocument(){
-
         $swordAppClient = new SWORDAPPClient();
 
-        $swordServiceDocument = $swordAppClient->servicedocument($this->urlSwordServiceDoc, $this->user, $this->password, $this->onBehalfOf);
+        $swordServiceDocument = $swordAppClient->servicedocument($this->url_sword_service_doc, $this->datapush_user, $this->datapush_password, $this->datapush_on_behalf_of);
 
         if ($swordServiceDocument->sac_status == 200) {
             foreach ($swordServiceDocument->sac_workspaces as $workspace) {
                 $collections = $workspace->sac_collections;
                 foreach ($collections as $collection) {
                     $ctitle = $collection->sac_colltitle;
-                    if($ctitle === "LBIS"){
+                    if($ctitle === $this->collection_title){
                         $this->urlDeposit = $collection->sac_href;
                         if (count($collection->sac_accept) > 0) {
                             foreach ($collection->sac_accept as $accept) {
@@ -140,6 +134,16 @@ class dataPushService {
 
         }
 
+    }
+
+    public function loadDataPushConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+
+        $this->datapush_user = $o_config->get('datapush_user');
+        $this->datapush_password = $o_config->get('datapush_password');
+        $this->datapush_on_behalf_of = $o_config->get('datapush_on_behalf_of');
+        $this->url_sword_service_doc = $o_config->get('url_sword_service_doc');
+        $this->collection_title = $o_config->get('collection_title');
     }
 
 }
