@@ -20,9 +20,6 @@
     echo "<form action='$formAction' method='post'>";
     echo "<table border='0' width='100%' style='border-width: 1px;
                                            border-color:#000000; border-style: solid;'>";
-    echo "<tr style='text-align: center'>";
-        echo "<td align='center' colspan='2'> <input type='submit' value='Push Data' name='dataPush'> </td>";
-    echo "</tr>";
 
     foreach(new RecursiveIteratorIterator($it) as $file)
     {
@@ -40,7 +37,9 @@
             }
         }
     }
-
+        echo "<tr style='text-align: center'>";
+        echo "<td align='center' colspan='2'> <input type='submit' value='Push Data' name='dataPush'> </td>";
+        echo "</tr>";
     echo "</table>";
     echo '</form>';
     echo '</div>';
