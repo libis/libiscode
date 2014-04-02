@@ -9,22 +9,28 @@
 
 class setManagerService {
 
-    private $urlList = 'http://euinside.k-int.com/ECKCore2/SetManager/Set/default/default/list';
-    private $urlCommit = 'http://euinside.k-int.com/ECKCore2/SetManager/Set/LIBIS/LibSet/commit';
-    private $urlStatus = 'http://euinside.k-int.com/ECKCore2/SetManager/Set/LIBIS/LibSet/status';
+    private $url_set_manager_list;
+    private $url_set_manager_commit;
+    private $url_set_manager_status;
+    private $url_test_record_file;      //only for test purposes
 
-
-
+    # Constructor
+    public function __construct()
+    {
+        $this->loadSetManagerConfigurations(dirname(__FILE__).'/config/libiscode.conf');
+    }
 
 
     function getList(){
         $htmlResult="";
-        $url = $this->urlList;
         $curl = curl_init();
+
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $url)
+                CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_set_manager_list)
         );
+
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
@@ -48,32 +54,36 @@ class setManagerService {
 
     function commit(){
         $fields = array(
-            'records' => '@C:/Kaam/Projecten/Europeana/EuropeanaInside/REST Services/validationrecords/lido1.xml',
+            'records' => '@'.$this->url_test_record_file,
             'setDescription' => 'A lido set from Libis');
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $this->urlCommit)
+                CURLOPT_POSTFIELDS => $fields,
+                CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_set_manager_commit)
         );
-        curl_setopt($curl,CURLOPT_POSTFIELDS, $fields);
 
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        if($responseCode != 200)
-            return $responseCode;
+        if($responseCode == 202)
+            return 'Record has been submitted successfully for processing(Response Code = '.$responseCode.'). ';
         else
-            return $result;
+            return 'Response Code = '.$responseCode;
+
     }
 
     function getStatus(){
         $htmlResult="";
-        $url = $this->urlStatus;
         $curl = curl_init();
+
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => $url)
+                CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_set_manager_status)
         );
+
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
@@ -93,6 +103,17 @@ class setManagerService {
             return $responseCode;
         }
 
+    }
+
+    public function loadSetManagerConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+
+        $this->url_set_manager_list = $o_config->get('url_set_manager_list');
+        $this->url_set_manager_commit = $o_config->get('url_set_manager_commit');
+        $this->url_set_manager_status = $o_config->get('url_set_manager_status');
+        $this->url_proxy = $o_config->get('url_proxy');
+
+        $this->url_test_record_file = $o_config->get('test_record_set_manager');
     }
 
 }
