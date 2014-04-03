@@ -101,7 +101,11 @@
                     $edmFile = trim(trim($edmFile, '.'));
                     $result = $pidStorage->generateRecordPID($edmFile);
 
-                    echo '<br>EDM File: '.basename($edmFile).'<br>';
+                    echo '<br>EDM File: ';
+                    echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                        "/app/plugins/contentDeliveryMenu/files".end(explode('files', $edmFile)).
+                        $fileName.'>'.basename($edmFile).'<br>'.'</a>';
+                    
                     foreach($result as $value){
                         $e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation',
                             'MESSAGE' => sprintf('Record Identifier: %s,  Record PID: %s, Stored PID: %s', $value['recordidentifier'],
