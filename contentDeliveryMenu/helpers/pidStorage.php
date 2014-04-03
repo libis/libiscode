@@ -15,6 +15,7 @@ define('PID_ELEMENT', 'eckPid');
 class pidStorage {
     private $pidService;
     private $attribute;
+    private $pid_field;
     private $c_object;
     private $c_locale;
     private $e_log;
@@ -30,6 +31,8 @@ class pidStorage {
         self::__set('c_locale', new ca_locales());
         self::__set('e_log', new Eventlog());
         self::__set('db', $this->attribute->getDb());
+
+        $this->loadPIDConfigurations(dirname(__FILE__).'/config/libiscode.conf');
     }
 
     # Setter
@@ -208,7 +211,7 @@ class pidStorage {
             return 'idno('.$idNo.') does not exists.';
     }
 
-    function generateRecordPID($edmRecordFile, $pidCode){
+    function generateRecordPID($edmRecordFile){
 
         $domDoc = new DOMDocument();
         $domDoc->formatOutput = true;
@@ -229,7 +232,7 @@ class pidStorage {
                     'MESSAGE' => sprintf('Record Identifier: %s', $recrodIdentifier)));
 
                 $pidResponse = $this->pidService->generatePID('libis.kuleuven.be' , 'object', $recrodIdentifier);
-                
+
                 if(isset($pidResponse['response_code']) && $pidResponse['response_code'] == 200){
                     $pid =  $pidResponse['pid'];
 
@@ -246,12 +249,16 @@ class pidStorage {
                     $child->appendChild($nodeValue);                    //assign value to the newly created node element
 
                     //add in collectiveaccess database
-                    //$dbPid = $this->storePid($pidCode, $pid, $recrodIdentifier).'<br>';
-                    //$value['storedpid'] = $dbPid;
-                    $isPIDAdded = $this->addPIDInDb($recrodIdentifier, $pidCode, $pid);
-                    if($isPIDAdded)
+                    $isPIDAdded = $this->storePid($this->pid_field, $pid, $recrodIdentifier);
+
+//                    $isPIDAdded = $this->addPIDInDb($recrodIdentifier, $this->pid_field, $pid);
+
+                    if($isPIDAdded){
                         $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
                             'MESSAGE' => sprintf('PID(%s) for record %s successfully stored.', $pid, $recrodIdentifier)));
+                        $value['storedpid'] = $isPIDAdded;
+                    }
+
                     else
                         $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
                             'MESSAGE' => sprintf('PID(%s) for record %s could not be added stored.', $pid, $recrodIdentifier)));
@@ -302,4 +309,9 @@ class pidStorage {
         return $this->c_object->update();
     }
 
+    public function loadPIDConfigurations($conf_file_path){
+        $o_config = Configuration::load($conf_file_path);
+
+        $this->pid_field= $o_config->get('pid_field');
+    }
 } 

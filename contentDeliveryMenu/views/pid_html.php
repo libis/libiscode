@@ -11,7 +11,6 @@
     $e_log = new Eventlog();
 
     $filesDirectory = __CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/files';
-    $pidCode = 'eckPid';
     $searchString = 'edm';
 
     $it = new RecursiveDirectoryIterator($filesDirectory);
@@ -71,7 +70,7 @@
                         $isZip->extractTo($fileExtractionLocation, array($isZip->getNameIndex($i)));
                         $edmFileInZip = $fileExtractionLocation.'/'.$isZip->getNameIndex($i);
 
-                        $result = $pidStorage->generateRecordPID($edmFileInZip, $pidCode);
+                        $result = $pidStorage->generateRecordPID($edmFileInZip);
                         echo '<br>-->EDM File: '.basename($edmFileInZip).'<br>';
                         foreach($result as $value){
                             echo '----> Record Identifier: '.$value['recordidentifier'].'<br>';
@@ -100,9 +99,8 @@
                     ));
 
                     $edmFile = trim(trim($edmFile, '.'));
-                    $result = $pidStorage->generateRecordPID($edmFile, $pidCode);
+                    $result = $pidStorage->generateRecordPID($edmFile);
 
-//                    $result = $pidStorage->generateRecordsPID($edmFile, $pidCode);
                     echo '<br>EDM File: '.basename($edmFile).'<br>';
                     foreach($result as $value){
                         $e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation',
