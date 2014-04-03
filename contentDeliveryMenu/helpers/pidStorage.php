@@ -209,6 +209,7 @@ class pidStorage {
     }
 
     function generateRecordPID($edmRecordFile, $pidCode){
+
         $domDoc = new DOMDocument();
         $domDoc->formatOutput = true;
         $domDoc->preserveWhiteSpace = false;
@@ -227,33 +228,52 @@ class pidStorage {
                 $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
                     'MESSAGE' => sprintf('Record Identifier: %s', $recrodIdentifier)));
 
-                $pid = $this->pidService->generatePID('libis.kuleuven.be' , 'object', $recrodIdentifier);
-                $pid = str_replace('"', "", $pid);
+                $pidResponse = $this->pidService->generatePID('libis.kuleuven.be' , 'object', $recrodIdentifier);
+                
+                if(isset($pidResponse['response_code']) && $pidResponse['response_code'] == 200){
+                    $pid =  $pidResponse['pid'];
 
-                $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                    'MESSAGE' => sprintf('PID: %s', $pid)));
-
-                $value['recordidentifier'] = $recrodIdentifier;
-                $value['generatedpid'] = $pid;
-
-                //add in edm xml file
-                $childNode = $domDoc->createElement('dc:pid');
-                $nodeValue = $domDoc->createTextNode($pid);
-                $child = $param->appendChild($childNode);            //add newley created node to root or the given node
-                $child->appendChild($nodeValue);                    //assign value to the newly created node element
-
-                //add in collectiveaccess database
-                //$dbPid = $this->storePid($pidCode, $pid, $recrodIdentifier).'<br>';
-                //$value['storedpid'] = $dbPid;
-                $isPIDAdded = $this->addPIDInDb($recrodIdentifier, $pidCode, $pid);
-                if($isPIDAdded)
                     $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                        'MESSAGE' => sprintf('PID(%s) for record %s successfully stored.', $pid, $recrodIdentifier)));
-                else
-                    $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                        'MESSAGE' => sprintf('PID(%s) for record %s could not be added stored.', $pid, $recrodIdentifier)));
+                        'MESSAGE' => sprintf('PID: %s', $pid)));
 
-                $result[]= $value;
+                    $value['recordidentifier'] = $recrodIdentifier;
+                    $value['generatedpid'] = $pid;
+
+                    //add in edm xml file
+                    $childNode = $domDoc->createElement('dc:pid');
+                    $nodeValue = $domDoc->createTextNode($pid);
+                    $child = $param->appendChild($childNode);            //add newley created node to root or the given node
+                    $child->appendChild($nodeValue);                    //assign value to the newly created node element
+
+                    //add in collectiveaccess database
+                    //$dbPid = $this->storePid($pidCode, $pid, $recrodIdentifier).'<br>';
+                    //$value['storedpid'] = $dbPid;
+                    $isPIDAdded = $this->addPIDInDb($recrodIdentifier, $pidCode, $pid);
+                    if($isPIDAdded)
+                        $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                            'MESSAGE' => sprintf('PID(%s) for record %s successfully stored.', $pid, $recrodIdentifier)));
+                    else
+                        $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                            'MESSAGE' => sprintf('PID(%s) for record %s could not be added stored.', $pid, $recrodIdentifier)));
+
+                    $result[]= $value;
+
+                }else
+                {
+                    $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                        'MESSAGE' => sprintf('PID for record %s could not be created.
+                        PID service returned with response code: %s',$recrodIdentifier, $pidResponse['response_code'])));
+
+                    $result[] = array(
+                        'recordidentifier' => $recrodIdentifier,
+                        'generatedpid'     => 'PID for this record could not be created.
+                                               PID service returned with response code: '.
+                                               $pidResponse['response_code']
+                    );
+                }
+
+
+
             }
         }
         $domDoc->save($edmRecordFile);

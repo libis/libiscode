@@ -35,14 +35,19 @@ class pidService {
         );
         curl_setopt($curl,CURLOPT_POSTFIELDS, $requestParameter);
 
+        $pid = '';
+        $result = '';
         $result = curl_exec($curl);
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $contentType = explode(';',curl_getinfo($curl, CURLINFO_CONTENT_TYPE));
+        if($contentType[0] === 'application/xml' && strlen($result) > 0){
+            $doc = new DOMDocument;
+            $doc->loadXML($result);
+            //pid is returned as xml string in a node called 'string'
+            $pid = $doc->getElementsByTagName('string')->item(0)->nodeValue;
+        }
 
-        if($responseCode != 200)
-            return $responseCode;
-        else
-            return $result;
-
+        return array('response_code' => $responseCode, 'pid' => trim($pid, '"'));
     }
 
     function lookupPID($pid){
@@ -51,7 +56,7 @@ class pidService {
         $curl = curl_init();
         curl_setopt_array($curl, array(
         CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_PROXY => $this->url_proxy,
+        CURLOPT_PROXY => $this->url_proxy,
         CURLOPT_URL => $this->url_pid_lookup.'/'.$pid)
         );
         $result = curl_exec($curl);
@@ -90,7 +95,5 @@ class pidService {
 
 
     }
-
-
 
 }
