@@ -180,10 +180,15 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
                 $transformedResult = $dmtService->fetchRecord($requestId);
                 $dataDirectory = $_POST['dataDirectory'].'/';
                 echo '-> Retrieved Record(s) File: ';
-                echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
-                    "/app/plugins/contentDeliveryMenu/files".end(explode('files', $dataDirectory)).
-                    $fileName.'>'.$fileName.'</a>';
-                file_put_contents($dataDirectory.$fileName,$transformedResult);
+
+                if(($transformedResult['success']) === true){
+                    echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                        "/app/plugins/contentDeliveryMenu/files".end(explode('files', $dataDirectory)).
+                        $fileName.'>'.$fileName.'</a>';
+                    file_put_contents($dataDirectory.$fileName,$transformedResult['response']);
+                }
+                else
+                    echo 'File could not be fetch. Service returned with response: '.$transformedResult['response'];
 
             }
             else

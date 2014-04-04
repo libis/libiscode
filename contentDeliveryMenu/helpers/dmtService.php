@@ -8,12 +8,14 @@
 class dmtService {
     const SUCCESS   =   200;
 
-    protected $url_base;
-    protected $url_proxy;
+    private $url_base;
+    private $url_proxy;
 
-    protected $url_transform;
-    protected $url_fetch_record;
-    protected $url_status_record;
+    private $dmt_provider;
+    private $url_transform;
+    private $dmt_batch_title;
+    private $url_fetch_record;
+    private $url_status_record;
 
 
     # Constructor
@@ -51,7 +53,8 @@ class dmtService {
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_PROXY => $this->url_proxy,
-            CURLOPT_URL => $this->url_base.$this->url_status_record.'?request_id='.$requestId
+            CURLOPT_URL => $this->url_base.'/'.$this->dmt_provider.'/'.$this->dmt_batch_title.
+                           '/'.$this->url_status_record.'?request_id='.$requestId
         ));
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -67,23 +70,28 @@ class dmtService {
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_PROXY => $this->url_proxy,
-            CURLOPT_URL => $this->url_base.$this->url_fetch_record.'?request_id='.$requestId
+            CURLOPT_URL => $this->url_base.'/'.$this->dmt_provider.'/'.$this->dmt_batch_title.
+                '/'.$this->url_fetch_record.'?request_id='.$requestId
         ));
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        if($httpCode === self::SUCCESS){
-           return $response;
+        $contentType = explode(';',curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
+        if($contentType[0] === 'application/xml' && $httpCode === self::SUCCESS){
+            return array('success' => true, 'response' => $response);
         }
+        else
+            return array('success' => false, 'response' => $response);
     }
 
     public function loadLibisCodeConfigurations($conf_file_path){
         $o_config = Configuration::load($conf_file_path);
 
-        $this->url_base = $o_config->get('dmt_url_base');
         $this->url_proxy = $o_config->get('url_proxy');
-
+        $this->url_base = $o_config->get('dmt_url_base');
+        $this->dmt_provider = $o_config->get('dmt_provider');
         $this->url_transform = $o_config->get('url_transform');
+        $this->dmt_batch_title = $o_config->get('dmt_batch_title');
         $this->url_fetch_record = $o_config->get('url_fetch_record');
         $this->url_status_record = $o_config->get('url_status_record');
     }
