@@ -195,8 +195,38 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
                 echo 'Request('.$requestId.') yet to be processed.';
         }
     }
-    else
-        echo 'Error in request, please try again';
+    else{
+        echo 'Error in transformation request, please try again';
+            echo '<div>';
+            echo "<table border='0' width='100%' style='border-width: 1px;
+                                   border-color:#000000; border-style: solid;'>";
+            $formAction = dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List";
+                echo "<form action='$formAction' method='post'>";
+                echo "<tr style='text-align: center'>";
+                    echo '<td style="text-align: left">';
+                        echo '<strong style="font-size: 10px;">Generated '.strtoupper($_POST['sourceFormat']).' XML File: </strong>';
+                        echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                            "/app/plugins/contentDeliveryMenu/files".end(explode('files', $_POST['generatedXMLFile'])).'>'
+                            .basename($_POST['generatedXMLFile']).'</a>';
+                        echo '<input type ="hidden" name="generatedXMLFile" value='.$_POST['generatedXMLFile'].'>';
+                        echo '<input type ="hidden" name="sourceFormat" value='.$_POST['sourceFormat'].'>';
+                        echo '<input type ="hidden" name="dataDirectory" value='.$_POST['dataDirectory'].'>';
+                    echo '</td>';
+
+                    echo '<td style="text-align: left">';
+                        echo '<strong style="font-size: 10px; text-align: left">Target Format:</strong>';
+                        echo '<select name="selectTransformFormat" ">';
+                        echo '<option value="edm">EDM</option>';
+                        echo '<option value="lido">LIDO</option>';
+                        echo '</select>';
+                    echo '</td>';
+
+                    echo "<td align='right'> <input type='submit' value='Transform XML' name='xmlTransformation'> </td>";
+                echo "</tr>";
+                echo '</form>';
+            echo "</table>";
+        echo '</div>';
+    }
 
     echo '</div>';
 }
