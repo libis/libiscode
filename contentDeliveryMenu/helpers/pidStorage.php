@@ -242,6 +242,12 @@ class pidStorage {
                     $value['recordidentifier'] = $recrodIdentifier;
                     $value['generatedpid'] = $pid;
 
+                    //remove existing pid
+                    $existingPidElements = $param->getElementsByTagName('pid');
+                    foreach($existingPidElements as $pidelement){
+                        $param->removeChild($pidelement);
+                    }
+
                     //add in edm xml file
                     $childNode = $domDoc->createElement('dc:pid');
                     $nodeValue = $domDoc->createTextNode($pid);
