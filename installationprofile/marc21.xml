@@ -217,14 +217,6 @@
                                                 </label>
                                         </labels>
                                 </item>
-                                <item idno="rrra" enabled="1" default="0" value="http://www.europeana.eu/rights/rr-r/">
-                                        <labels>
-                                                <label locale="en_US" preferred="1">
-                                                        <name_singular>Rights Reserved – Restricted Access</name_singular>
-                                                        <name_plural>Rights Reserved – Restricted Access</name_plural>
-                                                </label>
-                                        </labels>
-                                </item>
                                 <item idno="rightsUnknown" enabled="1" default="0" value="http://www.europeana.eu/rights/unknown/">
                                         <labels>
                                                 <label locale="en_US" preferred="1">
