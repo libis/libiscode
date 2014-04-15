@@ -57,25 +57,20 @@ class marcXMLGeneration {
             $this->xml->initXML($marcXML);      //init XML for Marc
 
             foreach($marcRecords as $record){
-                print '<pre>';
-                //print_r($record);
-                print '</pre>';
-
                 $records = $record;
                 $recordIdNo = $records['marc001'];
                 $this->initRecord($marcXML);        //init a record
 
                 //add record's header fields
-                $leaderString = $this->generateLeaderValue($records);
+                $leaderString = $this->getLeaderValue($record);
                 $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);      //create leader node
                 $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber);  //create controlfield node
 
                 //add record's subfields
                 foreach($records as $element=>$value){
-
                     if(strpos($element, 'leader') === false && strpos($element, 'marc001') === false
                         && strpos($element, 'edm') === false)       //marc001 == controlefield, edm filters out edm records
-                    $subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
+						$subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
 
                     if(!isset($subField))
                         $this->log->logError('Element[ Code:'.$element. ', Value:'.$value.'] could not be transformed' );
@@ -126,7 +121,7 @@ class marcXMLGeneration {
         $this->xml->addNode($marcXML, 'record', null, null);
     }
 
-    function generateLeaderValue($records){
+/*    function generateLeaderValue($records){
        $leaderString = '';
        for ($x=0; $x<23; $x++)
         {
@@ -153,8 +148,19 @@ class marcXMLGeneration {
             }
 
         }
-
         return $leaderString;
+    }*/
+
+    function getLeaderValue($record){
+        $leaderCode = '';
+        foreach(array_keys($record) as $key){
+            if (strpos($key,'leader') !== false)
+                $leaderCode = $key;
+        }
+
+        return isset($record[$leaderCode])? $record[$leaderCode] : ' ';
+
     }
+
 
 }
