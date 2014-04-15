@@ -63,8 +63,10 @@ class marcXMLGeneration {
 
                 //add record's header fields
                 $leaderString = $this->getLeaderValue($record);
+				$controlFieldTag = $this->dataFieldParser('marc001');
+				
                 $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);      //create leader node
-                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber);  //create controlfield node
+                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber, $controlFieldTag);  //create controlfield with tag
 
                 //add record's subfields
                 foreach($records as $element=>$value){
