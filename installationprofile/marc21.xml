@@ -12,16 +12,7 @@
                                         <name>Data provider</name>
                                 </label>
                         </labels>
-                        <items>
-                                <item idno="testDataProvider" enabled="1" default="0">
-                                        <labels>
-                                                <label locale="en_US" preferred="1">
-                                                        <name_singular>test data provider</name_singular>
-                                                        <name_plural>test data provider</name_plural>
-                                                </label>
-                                        </labels>
-                                </item>
-                        </items>
+                        <items />
                 </list>
                 <list code="marc787i_list" hierarchical="0" system="0" vocabulary="0">
                         <labels>
@@ -137,6 +128,14 @@
                                 </label>
                         </labels>
                         <items>
+                        	<item idno="rights_blanco" enabled="1" default="0">
+                                        <labels>
+                                                <label locale="en_US" preferred="1">
+                                                        <name_singular> </name_singular>
+                                                        <name_plural> </name_plural>
+                                                </label>
+                                        </labels>
+                                </item>
                                 <item idno="publicDomain" enabled="1" default="0" value="http://creativecommons.org/publicdomain/mark/1.0/">
                                         <labels>
                                                 <label locale="en_US" preferred="1">
@@ -309,16 +308,7 @@
                                         <name>Provider</name>
                                 </label>
                         </labels>
-                        <items>
-                        	<item idno="testProvider" enabled="1" default="1">
-                                        <labels>
-                                                <label locale="en_US" preferred="1">
-                                                        <name_singular>test provider</name_singular>
-                                                        <name_plural>test  provider</name_plural>
-                                                </label>
-                                        </labels>
-                                </item>
-                        </items>
+                        <items />
                 </list>
                 <list code="object_types" hierarchical="0" system="1" vocabulary="0">
                         <labels>
@@ -1927,7 +1917,7 @@
 				<labels>
 					<label locale="en_US">
 						<name>MARC 300 $b: Other physical details </name>
-						<description>MARC 300 $b: dcterms:extent</description>
+						<description>MARC 300 $b: dc:description</description>
 					</label>
 				</labels>
 				<settings>
