@@ -94,6 +94,7 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
         $t_object = new ca_objects($qr_res->get('row_id'));
         $idNo = $t_object->get('idno');
         $prefferedLabel = $t_object->get('ca_objects.preferred_labels.name');
+        $object_id = $t_object->get('object_id');
 
         $va_element_ids = $t_object->getApplicableElementCodes(null, false, false);
         $va_attributes = ca_attributes::getAttributes($t_object->getDb(), $t_object->tableNum(),
@@ -115,6 +116,7 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                 $element_code = $val->getElementCode();
                 $element_value = $val->getDisplayValue();
 
+                // list items
                 $element_type = ca_metadata_elements::getElementDatatype($element_code);
                 if($element_type == 3){
                     $t_list_item = new ca_list_items($element_value);
@@ -122,7 +124,36 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
 
                     isset($item_value)? $element_value = $item_value :$element_value = '';
                 }
-                $elements[$element_code] = $element_value;
+                 $elements[$element_code] = $element_value;
+            }
+        }
+
+        // relationships
+        $relationships = $t_object->hasRelationships();
+        foreach($relationships as $key => $value){
+            if (strpos($key,'_x_') !== false) {
+
+                if (strpos($key,'vocabulary_terms') !== false) {
+                    $qr_vocabulary_terms = $o_db->query("SELECT * FROM ca_objects_x_vocabulary_terms WHERE object_id = $object_id");
+                    while($qr_vocabulary_terms->nextRow()){
+                        $list_item_vocabulary = new ca_list_items($qr_vocabulary_terms->get('item_id'));
+                        $vocabulary_items = $list_item_vocabulary->getValuesForExport();
+                        if(isset($vocabulary_items['list_code'])){
+                        $vocabulary_item_code = current(explode('_',$vocabulary_items['list_code']));
+                        $elements[$vocabulary_item_code] = $list_item_vocabulary->getListName();
+                        }
+                    }
+                }
+                else{
+                    $related_items = $t_object->getRelatedItems('ca' . end(explode('x',$key)));
+                    if(is_array($related_items)){
+                        foreach($related_items as $item){
+                            $elements[$item['relationship_type_code']] = $item['label'];
+                        }
+                    }
+                }
+
+
             }
         }
 
