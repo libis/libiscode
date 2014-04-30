@@ -124,7 +124,8 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
 
                     isset($item_value)? $element_value = $item_value :$element_value = '';
                 }
-                 $elements[$element_code] = $element_value;
+                if(!empty($element_value))
+                    $elements[$element_code] = $element_value;
             }
         }
 
@@ -140,7 +141,8 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                         $vocabulary_items = $list_item_vocabulary->getValuesForExport();
                         if(isset($vocabulary_items['list_code'])){
                         $vocabulary_item_code = current(explode('_',$vocabulary_items['list_code']));
-                        $elements[$vocabulary_item_code] = $list_item_vocabulary->getListName();
+                        if(!empty($list_item_vocabulary->getListName()))
+                            $elements[$vocabulary_item_code] = $list_item_vocabulary->getListName();
                         }
                     }
                 }
@@ -148,7 +150,8 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                     $related_items = $t_object->getRelatedItems('ca' . end(explode('x',$key)));
                     if(is_array($related_items)){
                         foreach($related_items as $item){
-                            $elements[$item['relationship_type_code']] = $item['label'];
+                            if(!empty($item['label']))
+                                $elements[$item['relationship_type_code']] = $item['label'];
                         }
                     }
                 }
