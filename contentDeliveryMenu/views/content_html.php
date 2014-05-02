@@ -114,18 +114,22 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
             foreach($idValue as $val){
                 $element_id = $t_element->load($val->getElementID());
                 $element_code = $val->getElementCode();
-                $element_value = $val->getDisplayValue();
 
-                // list items
-                $element_type = ca_metadata_elements::getElementDatatype($element_code);
-                if($element_type == 3){
-                    $t_list_item = new ca_list_items($element_value);
-                    $item_value = $t_list_item->getListName();
+                if (strpos($element_code,'marc') !== false || strpos($element_code,'leader') !== false) {
+                    $element_value = $val->getDisplayValue();
 
-                    isset($item_value)? $element_value = $item_value :$element_value = '';
+                    // list items
+                    $element_type = ca_metadata_elements::getElementDatatype($element_code);
+                    if($element_type == 3){
+                        $t_list_item = new ca_list_items($element_value);
+                        $item_value = $t_list_item->getListName();
+
+                        isset($item_value)? $element_value = $item_value :$element_value = '';
+                    }
+                    if(strlen($element_value) > 0)
+                        $elements[$element_code] = $element_value;
                 }
-                if(strlen($element_value) > 0)
-                    $elements[$element_code] = $element_value;
+
 
             }
         }
@@ -141,9 +145,9 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                         $list_item_vocabulary = new ca_list_items($qr_vocabulary_terms->get('item_id'));
                         $vocabulary_items = $list_item_vocabulary->getValuesForExport();
                         if(isset($vocabulary_items['list_code'])){
-                        $vocabulary_item_code = current(explode('_',$vocabulary_items['list_code']));
-                        if(strlen($list_item_vocabulary->getListName()) > 0)
-                            $elements[$vocabulary_item_code] = $list_item_vocabulary->getListName();
+                            $vocabulary_item_code = current(explode('_',$vocabulary_items['list_code']));
+                            if(strlen($list_item_vocabulary->getListName()) > 0)
+                                $elements[$vocabulary_item_code] = $list_item_vocabulary->getListName();
                         }
                     }
                 }
