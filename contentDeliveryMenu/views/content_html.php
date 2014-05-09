@@ -129,6 +129,16 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                     }
                     if(strlen($element_value) > 0)
                         $elements[$element_code] = $element_value;
+
+                }elseif($element_code === 'edm_provider_aggr'){
+                    $element_value = $val->getDisplayValue();
+                    $element_type = ca_metadata_elements::getElementDatatype($element_code);
+                    if($element_type == 3){
+                        $t_list_item = new ca_list_items($element_value);
+                        $item_value = $t_list_item->getListName();
+                        isset($item_value)? $element_value = $item_value :$element_value = '';
+                    }
+                    $elements['marc999e'] = $element_value;         // marc999e is defined against edm_provider_aggr (provider)
                 }
 
 
