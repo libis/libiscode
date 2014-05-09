@@ -94,6 +94,7 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
         $t_object = new ca_objects($qr_res->get('row_id'));
         $idNo = $t_object->get('idno');
         $prefferedLabel = $t_object->get('ca_objects.preferred_labels.name');
+        $nonprefferedLabel = $t_object->get('ca_objects.nonpreferred_labels.name');
         $object_id = $t_object->get('object_id');
 
         $va_element_ids = $t_object->getApplicableElementCodes(null, false, false);
@@ -167,6 +168,8 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
 
         $elements['marc001']=$idNo;
         $elements['marc245a']=$prefferedLabel;
+        if(strlen($nonprefferedLabel) > 0)
+            $elements['marc245b']=$nonprefferedLabel;
         $recordCounter ++;
         $recordElements[] = $elements;
     }
