@@ -57,22 +57,33 @@ class marcXMLGeneration {
             $this->xml->initXML($marcXML);      //init XML for Marc
 
             foreach($marcRecords as $record){
+
                 $records = $record;
                 $recordIdNo = $records['marc001'];
                 $this->initRecord($marcXML);        //init a record
 
                 //add record's header fields
                 $leaderString = $this->getLeaderValue($record);
-				$controlFieldTag = $this->dataFieldParser('marc001');
-				
+                $controlFieldTag = $this->dataFieldParser('marc001');
+
                 $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);      //create leader node
-                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber, $controlFieldTag);  //create controlfield with tag
+
+                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber, $controlFieldTag);  //create controlfield node
 
                 //add record's subfields
                 foreach($records as $element=>$value){
-                    if(strpos($element, 'leader') === false && strpos($element, 'marc001') === false
+
+                        if(strpos($element, 'leader') === false && strpos($element, 'marc001') === false
                         && strpos($element, 'edm') === false)       //marc001 == controlefield, edm filters out edm records
-						$subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
+                        {
+                            if(is_array($value)){
+                                foreach($value as $subValue)
+                                    $subField = $this->processMarcElement( $element, $subValue, $marcXML, $recordNumber);           //create record sub nodes
+                            }
+                            else
+                                $subField = $this->processMarcElement( $element, $value, $marcXML, $recordNumber);           //create record sub nodes
+                        }
+
 
                     if(!isset($subField))
                         $this->log->logError('Element[ Code:'.$element. ', Value:'.$value.'] could not be transformed' );
@@ -99,6 +110,8 @@ class marcXMLGeneration {
             $subFieldTag =null;
 
         $nodeName = 'datafield';
+        file_put_contents(__CA_BASE_DIR__.'/test/marc2.txt', print_r($elementCode.'-> '. $elementValue, true)."\n", FILE_APPEND);
+
         $addedNode =  $this->xml->addNode($marcXML, $nodeName, $elementValue, $recordNumber, $dataFieldTag, $subFieldTag);
         return $addedNode;
     }
