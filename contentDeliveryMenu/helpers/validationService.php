@@ -6,13 +6,18 @@
  * Time: 13:01
  */
 
+require_once(__CA_LIB_DIR__.'/vendor/autoload.php');
+
 class validationService {
 
-    private $url_validation;
-    private $url_validation_alternate;
-    private $validation_host;
-    private $validation_alternate_host;
     private $url_proxy;
+    private $profile_name;
+    private $provider_name;
+    private $url_validation;
+    private $validation_host;
+    private $url_validation_alternate;
+    private $validation_alternate_host;
+
 
     # Constructor
     public function __construct()
@@ -20,65 +25,26 @@ class validationService {
         $this->loadValidationConfigurations(dirname(__FILE__).'/config/libiscode.conf');
     }
 
-    function validateRecords($recordFile, $provider, $requestTitle, $profileName){
+    function validateRecords($recordFile){
+
         $fields = array(
-            'Name'          => $requestTitle,
-            'record'        => '@'.$recordFile,
-            'provider'      => $provider,
-            'profileName'   => $profileName
+            'record' => '@'.$recordFile
         );
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_PROXY => $this->url_proxy,
-                CURLOPT_URL => $this->url_validation)
-        );
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                'Host:'.$this->validation_host,
-                'Content-Type: 	multipart/form-data')
+				CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_validation.'/'.$this->provider_name.'/single/validate/'.$this->profile_name,
+                CURLOPT_HTTPHEADER, array('Content-type: application/xml')
+            )
         );
         curl_setopt($curl,CURLOPT_POSTFIELDS, $fields);
+        $response = curl_exec($curl);
 
-        $result = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($responseCode != 200)
-            return $responseCode;
-        else
-            return $result;
-
+        return array('response_code' => curl_getinfo($curl, CURLINFO_HTTP_CODE), 'response_body' => json_decode($response, true));
     }
 
-    function validateRecordsAlternate($recordFile, $provider, $requestTitle, $profileName){
-        $fields = array(
-            'Name'          => $requestTitle,
-            'xmldoc'        => '@'.$recordFile,
-            'XmlDocument'      => '@'.$recordFile
-//            'Source'   => $profileName
-        );
-
-        $requestParameter = json_encode($fields);
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_PROXY => $this->url_proxy,
-                CURLOPT_URL => $this->url_validation_alternate.'/validation/validate',
-                CURLOPT_POSTFIELDS => $requestParameter,
-                CURLOPT_HTTPHEADER => array(
-                    'Host:'.$this->validation_alternate_host,
-                    'User-Agent: Fiddler',
-                    'Content-Type: application/json; charset=utf-8'))
-        );
-
-        $result = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        if($responseCode != 200)
-            return $responseCode;
-        else
-            return $result;
-
-    }
 
     public function loadValidationConfigurations($conf_file_path){
         $o_config = Configuration::load($conf_file_path);
@@ -88,6 +54,9 @@ class validationService {
         $this->validation_host = $o_config->get('validation_host');
         $this->validation_alternate_host = $o_config->get('validation_alternate_host');
         $this->url_proxy = $o_config->get('url_proxy');
+
+        $this->profile_name = $o_config->get('profileName');
+        $this->provider_name = $o_config->get('provider');
 
     }
 
