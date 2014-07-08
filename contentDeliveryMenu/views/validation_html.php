@@ -56,8 +56,9 @@
                 $isZip = zip_open($edmFile);
                 if (is_resource($isZip)) {
                     zip_close($isZip);
-                    $response = $validationService->validateRecords($edmFile,'KULeuven', basename($edmFile), 'marc');
-                    echo basename($edmFile). ' => '. $response. '<br>';
+                    echo $edmFile. '<br>';
+                    $result_batch = $validationService->validateRecordsInBatch($edmFile);
+                    print_r($result_batch);
                 }else
                 {
                     $edmFile = trim(trim($edmFile, '.'));

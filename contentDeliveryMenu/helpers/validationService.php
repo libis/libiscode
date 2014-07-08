@@ -34,8 +34,29 @@ class validationService {
         $curl = curl_init();
         curl_setopt_array($curl, array(
                 CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_PROXY => $this->url_proxy,
                 CURLOPT_URL => $this->url_validation.'/'.$this->provider_name.'/single/validate/'.$this->profile_name,
+                CURLOPT_HTTPHEADER, array('Content-type: application/xml')
+            )
+        );
+        curl_setopt($curl,CURLOPT_POSTFIELDS, $fields);
+        $response = curl_exec($curl);
+
+        return array('response_code' => curl_getinfo($curl, CURLINFO_HTTP_CODE), 'response_body' => json_decode($response, true));
+    }
+
+    function validateRecordsInBatch($recordFile){
+
+        $fields = array(
+            'record' => '@'.$recordFile
+        );
+
+        $set_name = $this->provider_name.round(microtime(true) * 1000);
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_PROXY => $this->url_proxy,
+                CURLOPT_URL => $this->url_validation.'/'.$this->provider_name.'/'.$set_name.'/validate/'.$this->profile_name,
                 CURLOPT_HTTPHEADER, array('Content-type: application/xml')
             )
         );

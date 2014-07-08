@@ -8,10 +8,10 @@
 
     $previewService = new previewService;
     $filesDirectory = __CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/files';
-    $searchString = 'lido';
+    $searchString = 'edm';
 
     $it = new RecursiveDirectoryIterator($filesDirectory);
-    $display = Array ( 'xml','zip' );
+    $display = Array ( 'xml' );
 
     echo '<div>';
     echo "<table border='0' width='100%' style='border-width: 1px;
@@ -24,11 +24,17 @@
             if (strpos($file,$searchString) !== false) {
                 echo "<tr style='text-align: center; border: 1px'>";
                 echo '<td style="text-align: left; width:1%;">';
+
                 echo "<input type='checkbox' value=' . $file .' name='previewFiles[]'>";
+
                 echo '</td>';
 
                 echo '<td style="text-align: left">';
-                echo basename($file);
+                echo '<a target = "_blank" style = "text-decoration:none;" href='.dirname($_SERVER['SCRIPT_NAME']).
+                    "/app/plugins/contentDeliveryMenu/files".end(explode('files', $file)).'>'
+                    .basename($file);
+                echo '</a>';
+
                 echo '</td>';
                 echo "</tr>";
             }
@@ -52,12 +58,13 @@
             if(isset($previewFileLocation[1])){
                 $previewFile = $filesDirectory.trim(str_replace('\\', '/', $previewFileLocation[1]));
                 $previewFile = trim(trim($previewFile, '.'));
-                $response = $previewService->previewRecords($previewFile);
+                $response = $previewService->previewBatchRecords($previewFile);
                 echo $response;
                 echo '<br>';
             }
         }
     }
+
 
 ?>
 
