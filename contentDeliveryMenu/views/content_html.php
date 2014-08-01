@@ -11,6 +11,8 @@ ini_set('memory_limit','2048M');
 set_time_limit(600000);
 
 define('CA_OBJECT_TABLE_NUMBER', 57);
+define('FILE_TO_ZIP_SIZE_LIMIT', 262144);
+
 $log = KLogger::instance(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/logging/', 7);
 $marcXMLFile = '';
 
@@ -257,6 +259,20 @@ if(isset($_POST['selectTransformFormat']) && $_POST['generatedXMLFile']){
     $dmtService = new dmtService();
     $mappingFile = __CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/marcmappingrules.csv';
     echo '<div>';
+
+
+    if(filesize($_POST['generatedXMLFile']) > FILE_TO_ZIP_SIZE_LIMIT){
+        $path = pathinfo($_POST['generatedXMLFile']);
+        $fileName =  basename($_POST['generatedXMLFile'],'.'.$path['extension']);
+        $zipFile = $path[dirname].'/'.$fileName.'.zip';
+
+        $zip = new ZipArchive;
+        $zip->open($zipFile, ZipArchive::CREATE);
+        $zip->addFile($_POST['generatedXMLFile'], basename($_POST['generatedXMLFile']));
+        $zip->close();
+        $_POST['generatedXMLFile'] = $zipFile;
+    }
+
     $requestId = $dmtService->mappingSingleFile($_POST['generatedXMLFile'], $mappingFile, $_POST['sourceFormat'], $_POST['selectTransformFormat']);
     if(isset($requestId)){
         echo '-> Request Id: '.$requestId.'<br>';

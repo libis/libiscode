@@ -76,8 +76,7 @@ class dmtService {
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        $contentType = explode(';',curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
-        if($contentType[0] === 'application/xml' && $httpCode === self::SUCCESS){
+        if($httpCode === self::SUCCESS){
             return array('success' => true, 'response' => $response);
         }
         else
