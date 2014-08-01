@@ -4,6 +4,7 @@ require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/KLogger.p
 class libisCodeXML {
 
     private $log;
+    public $domDoc;
 
     # Constructor
     public function __construct()
@@ -30,8 +31,6 @@ class libisCodeXML {
             return $this->$name;
     }
 
-
-
     function createXML($name, $path){
         $xmlFile = $path.'/'.$name.'.xml';
         libxml_use_internal_errors(true);
@@ -55,12 +54,8 @@ class libisCodeXML {
         $domDoc->save($xmlFile);
     }
 
-
-    function addNode($xmlFile, $elementtoAdd, $value, $recordNumber, $tagValue=null,$subNodeTag=null){
-        $domDoc = new DOMDocument();
-        $domDoc->formatOutput = true;
-        $domDoc->preserveWhiteSpace = false;
-        $domDoc->load($xmlFile);
+    function addNode($elementtoAdd, $value, $recordNumber, $tagValue=null,$subNodeTag=null){
+        $domDoc = $this->domDoc;
         $elementAddto = '';
 
         if(!isset($recordNumber))
@@ -119,13 +114,10 @@ class libisCodeXML {
                     $subNode->appendChild($nodeValue);
                 }
             }
-
-            $domDoc->save($xmlFile);
             return $chidNode;
         }
         else
             return null;
-
     }
 
     function addRecordControlField($xmlFile, $recordNumber, $controlValue){
@@ -145,6 +137,18 @@ class libisCodeXML {
         }
         $domDoc->save($xmlFile);
         return $childNode;
+    }
+
+    function loadXMLFile($xmlFile){
+        $domDoc = new DOMDocument();
+        $domDoc->formatOutput = true;
+        $domDoc->preserveWhiteSpace = false;
+        $domDoc->load($xmlFile);
+         $this->domDoc = $domDoc;
+    }
+
+    function saveXMLFile($xmlFile){
+        $this->domDoc->save($xmlFile);
     }
 
 }

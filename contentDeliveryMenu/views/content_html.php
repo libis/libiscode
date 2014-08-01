@@ -1,9 +1,14 @@
 <?php
 require_once(__CA_MODELS_DIR__.'/ca_sets.php');
 require_once(__CA_MODELS_DIR__.'/ca_objects.php');
+require_once(__CA_MODELS_DIR__.'/ca_objects.php');
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/dmtService.php');
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/KLogger.php');
 require_once(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/helpers/marcXMLGeneration.php');
+
+
+ini_set('memory_limit','2048M');
+set_time_limit(600000);
 
 define('CA_OBJECT_TABLE_NUMBER', 57);
 $log = KLogger::instance(__CA_BASE_DIR__.'/app/plugins/contentDeliveryMenu/logging/', 7);
@@ -34,9 +39,6 @@ $o_db = $t_set->getDb();
             <table border="0" align="center" cellspacing="10" width="100%" style="border-width: 1px;
                            border-color:#000000; border-style: solid;">
                 <tr>
-
-<!--                    <form action="collaccess/providencelocal/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List" method="post">-->
-
                     <form action="<?php echo dirname($_SERVER['SCRIPT_NAME'])."/index.php/contentDeliveryMenu/ContentDelivery/Index/universe/Content List"; ?>" method="post">
                     <td align="left">
                         <strong style="font-size: 10px;">SET:</strong>
@@ -89,8 +91,11 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
 					AND table_num = ?
 				", $set_id, CA_OBJECT_TABLE_NUMBER);
     $recordCounter = 0;
-    while($qr_res->nextRow()) {
 
+    $total_records = $qr_res->numRows();
+    $t_start = round(microtime(true) * 1000);
+
+    while($qr_res->nextRow()) {
         $t_object = new ca_objects($qr_res->get('row_id'));
         $idNo = $t_object->get('idno');
         $prefferedLabel = $t_object->get('ca_objects.preferred_labels.name');
@@ -137,7 +142,6 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                         }
                     }
 
-
                 }elseif($element_code === 'edm_provider_aggr'){
                     $element_value = $val->getDisplayValue();
                     $element_type = ca_metadata_elements::getElementDatatype($element_code);
@@ -148,8 +152,6 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                     }
                     $elements['marc999e'] = $element_value;         // marc999e is defined against edm_provider_aggr (provider)
                 }
-
-
             }
         }
 
@@ -157,19 +159,24 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
         $relationships = $t_object->hasRelationships();
         foreach($relationships as $key => $value){
             if (strpos($key,'_x_') !== false) {
-
                 if (strpos($key,'vocabulary_terms') !== false) {
-                    $qr_vocabulary_terms = $o_db->query("SELECT * FROM ca_objects_x_vocabulary_terms WHERE object_id = $object_id");
-                    $counter = 0;
-                    while($qr_vocabulary_terms->nextRow()){
-                        $list_item_vocabulary = new ca_list_items($qr_vocabulary_terms->get('item_id'));
-                        $vocabulary_items = $list_item_vocabulary->getValuesForExport();
-                        if(isset($vocabulary_items['list_code'])){
-                            $vocabulary_item_code = current(explode('_',$vocabulary_items['list_code']));
-                            if(strlen($list_item_vocabulary->getListName()) > 0){
-                                $elements[$vocabulary_item_code][$counter] = $list_item_vocabulary->getListName();
-                                $counter ++;
+                    $sql_vc_terms = "SELECT ca_objects_x_vocabulary_terms.item_id, ca_list_items.item_value,ca_lists.list_code
+                    FROM ca_objects_x_vocabulary_terms
+                    INNER JOIN ca_list_items ON ca_objects_x_vocabulary_terms.item_id = ca_list_items.item_id
+                    INNER JOIN ca_lists ON ca_list_items.list_id = ca_lists.list_id
+                    WHERE object_id = $object_id";
+                    $qr_vc_terms = $o_db->query($sql_vc_terms);
+                    $vc_fields = $qr_vc_terms->getAllRows();
+                    if(sizeof($vc_fields) > 0){
+                        foreach($vc_fields as $list_item){
+                            $item_value = $list_item['item_value'];
+                            $list_code = current(explode('_',$list_item['list_code']));
+                            if(array_key_exists($list_code, $elements)){
+                                $key_count = sizeof($elements[$list_code]);
+                                $elements[$list_code][$key_count] = $item_value;
                             }
+                            else
+                                $elements[$list_code][] = $item_value;
                         }
                     }
                 }
@@ -182,12 +189,9 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
                                 $elements[$item['relationship_type_code']][$counter] = $item['label'];
                                 $counter++;
                             }
-
                         }
                     }
                 }
-
-
             }
         }
 
@@ -203,13 +207,18 @@ if(isset($_POST['selectSet']) && $_POST['selectGenerationFormat']){
             }
         }
 
-
         $recordCounter ++;
         $recordElements[] = $elements;
     }
 
+    $log->logInfo('Total records: '.$total_records);
+
     $marcResult = $marcGenerator->marcGeneration($recordElements);
     $marcFilePath =$marcResult[0].'/'.$marcResult[1].'.xml';
+
+    $t_end = round(microtime(true) * 1000);
+    $log->logInfo('Marc XML generation time: '.(($t_end-$t_start)/1000).' sec');
+
 
     echo '<div>';
         echo "<table border='0' width='100%' style='border-width: 1px;

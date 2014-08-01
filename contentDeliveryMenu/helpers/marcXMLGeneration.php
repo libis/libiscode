@@ -56,6 +56,8 @@ class marcXMLGeneration {
 
             $this->xml->initXML($marcXML);      //init XML for Marc
 
+            $this->xml->loadXMLFile($marcXML);
+
             foreach($marcRecords as $record){
 
                 $records = $record;
@@ -66,9 +68,9 @@ class marcXMLGeneration {
                 $leaderString = $this->getLeaderValue($record);
                 $controlFieldTag = $this->dataFieldParser('marc001');
 
-                $this->xml->addNode($marcXML, 'leader', $leaderString, $recordNumber);      //create leader node
+                $this->xml->addNode('leader', $leaderString, $recordNumber);      //create leader node
 
-                $this->xml->addNode($marcXML, 'controlefield', $recordIdNo, $recordNumber, $controlFieldTag);  //create controlfield node
+                $this->xml->addNode('controlefield', $recordIdNo, $recordNumber, $controlFieldTag);  //create controlfield node
 
                 //add record's subfields
                 foreach($records as $element=>$value){
@@ -93,6 +95,7 @@ class marcXMLGeneration {
                 $recordNumber++;
             }
 
+            $this->xml->saveXMLFile($marcXML);
         }
         else{
             $this->log->logInfo('Marc XML file creation failed');
@@ -110,9 +113,8 @@ class marcXMLGeneration {
             $subFieldTag =null;
 
         $nodeName = 'datafield';
-        file_put_contents(__CA_BASE_DIR__.'/test/marc2.txt', print_r($elementCode.'-> '. $elementValue, true)."\n", FILE_APPEND);
 
-        $addedNode =  $this->xml->addNode($marcXML, $nodeName, $elementValue, $recordNumber, $dataFieldTag, $subFieldTag);
+        $addedNode =  $this->xml->addNode($nodeName, $elementValue, $recordNumber, $dataFieldTag, $subFieldTag);
         return $addedNode;
     }
 
@@ -133,38 +135,8 @@ class marcXMLGeneration {
     }
 
     function initRecord($marcXML){
-        $this->xml->addNode($marcXML, 'record', null, null);
+        $this->xml->addNode('record', null, null);
     }
-
-/*    function generateLeaderValue($records){
-       $leaderString = '';
-       for ($x=0; $x<23; $x++)
-        {
-            $leaderString.='x';
-        }
-
-        //prepare leader
-        $leaders = array();
-        foreach(array_keys($records) as $key){
-            if (strpos($key,'leader') !== false)
-                array_push($leaders, $key);
-        }
-
-        if(!empty($leaders))
-        {
-            foreach($leaders as $item){
-                $leaderPosition = 0;
-                $leaderValue = $records[$item];
-                $leader = explode('leader', $item);
-
-                if(isset($leader[1]))
-                    $leaderPosition = intval($leader[1]);
-                $leaderString = substr_replace($leaderString, $leaderValue, $leaderPosition-1, 1);
-            }
-
-        }
-        return $leaderString;
-    }*/
 
     function getLeaderValue($record){
         $leaderCode = '';
@@ -176,6 +148,5 @@ class marcXMLGeneration {
         return isset($record[$leaderCode])? $record[$leaderCode] : ' ';
 
     }
-
 
 }
