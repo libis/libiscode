@@ -15,7 +15,10 @@ define('PID_ELEMENT', 'eckPid');
 class pidStorage {
     private $pidService;
     private $attribute;
-    private $pid_field;
+    private $pid_field;     //database field
+    private $pid_element;   //edm element part of pid
+    private $pid_institution_url;
+    private $pid_record_type;
     private $c_object;
     private $c_locale;
     private $e_log;
@@ -222,76 +225,78 @@ class pidStorage {
         $value = array();
         $result = array();
 
-        $params = $domDoc->getElementsByTagName('ProvidedCHO');
-        foreach ($params as $param) {
-            $subElements = $param->getElementsByTagName('identifier');
-            foreach($subElements as $element){
-                $recrodIdentifier = $element->nodeValue;
+        $records = $domDoc->getElementsByTagName('RDF');
+        foreach($records as $record){
+            //$providedCHO = $record->getElementsByTagName('ProvidedCHO');
+            $params = $record->getElementsByTagName('ProvidedCHO');
+            foreach ($params as $param) {
 
-                $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                    'MESSAGE' => sprintf('Record Identifier: %s', $recrodIdentifier)));
+                $pidEdmElement = $this->pid_element;
+                $pidInstitutionUrl = $this->pid_institution_url;
+                $pidRecordType = $this->pid_record_type;
 
-                $pidResponse = $this->pidService->generatePID('libis.kuleuven.be' , 'object', $recrodIdentifier);
+                $subElements = $param->getElementsByTagName($pidEdmElement);
 
-                if(isset($pidResponse['response_code']) && $pidResponse['response_code'] == 200){
-                    $pid =  $pidResponse['pid'];
-
-                    $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                        'MESSAGE' => sprintf('PID: %s', $pid)));
-
-                    $value['recordidentifier'] = $recrodIdentifier;
-                    $value['generatedpid'] = $pid;
-
-                    //remove existing pid
-                    $existingPidElements = $param->getElementsByTagName('pid');
-                    foreach($existingPidElements as $pidelement){
-                        $param->removeChild($pidelement);
+                $recordIdentifires = array();
+                foreach($subElements as $element){
+                    $recordIdentifires[] = $element->nodeValue;
+                    if (strpos($element->nodeValue,$pidInstitutionUrl) !== false && strpos($element->nodeValue,$pidRecordType) !== false) {
+                        $param->removeChild($element);
                     }
-
-                    //add in edm xml file
-                    $childNode = $domDoc->createElement('dc:pid');
-                    $nodeValue = $domDoc->createTextNode($pid);
-                    $child = $param->appendChild($childNode);            //add newley created node to root or the given node
-                    $child->appendChild($nodeValue);                    //assign value to the newly created node element
-
-                    //add in collectiveaccess database
-                    $isPIDAdded = $this->storePid($this->pid_field, $pid, $recrodIdentifier);
-
-//                    $isPIDAdded = $this->addPIDInDb($recrodIdentifier, $this->pid_field, $pid);
-
-                    if($isPIDAdded){
-                        $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                            'MESSAGE' => sprintf('PID(%s) for record %s successfully stored.', $pid, $recrodIdentifier)));
-                        $value['storedpid'] = $isPIDAdded;
-                    }
-
-                    else
-                        $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                            'MESSAGE' => sprintf('PID(%s) for record %s could not be added stored.', $pid, $recrodIdentifier)));
-
-                    $result[]= $value;
-
-                }else
-                {
-                    $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
-                        'MESSAGE' => sprintf('PID for record %s could not be created.
-                        PID service returned with response code: %s',$recrodIdentifier, $pidResponse['response_code'])));
-
-                    $result[] = array(
-                        'recordidentifier' => $recrodIdentifier,
-                        'generatedpid'     => 'PID for this record could not be created.
-                                               PID service returned with response code: '.
-                                               $pidResponse['response_code']
-                    );
                 }
+                if(sizeof($recordIdentifires) > 0){
+                    $recordIdentifier = $recordIdentifires[0];
+                    $objectId = $this->findObject($recordIdentifier);
+                    if(!isset($objectId)){
+                        $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                            'MESSAGE' => sprintf('Invalid IDNO: %s',$recordIdentifier)));
+                        $value['recordidentifier'] = $recordIdentifier;
+                        $value['pid'] = 'PID not generated. Invalid IDNO: '.$recordIdentifier;
+                    }
+                    else{
+                        $pidServiceResponse = $this->pidService->generatePID($pidInstitutionUrl, $pidRecordType, $recordIdentifier);
+                        if(isset($pidServiceResponse['response_code']) && $pidServiceResponse['response_code'] == 200){
+                            $recordPid =  $pidServiceResponse['pid'];
+                            $isPIDAdded = $this->addPIDInDb($recordIdentifier, $this->pid_field, $recordPid);
 
+                            if($isPIDAdded){
+                                $childNode = $domDoc->createElement('dc:identifier');
+                                $nodeValue = $domDoc->createTextNode($recordPid);
+                                $child = $param->appendChild($childNode);            //add newley created node to root or the given node
+                                $child->appendChild($nodeValue);                    //assign value to the newly created node element
 
+                                $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                                    'MESSAGE' => sprintf('PID(%s) for record %s successfully created and stored.', $recordPid, $recordIdentifier)));
+                                $value['recordidentifier'] = $recordIdentifier;
+                                $value['pid'] = $recordPid;
 
+                                $param->setAttribute("rdf:about", $recordPid);
+                                $aggregationElement = $record->getElementsByTagName("Aggregation");
+                                foreach($aggregationElement as $aggregation){
+                                    $aggregation->setAttribute("rdf:about", $recordPid."-aggregation");
+                                    $aggregatedCHOElement = $aggregation->getElementsByTagName("aggregatedCHO");
+                                    foreach($aggregatedCHOElement as $aggregatedCHO){
+                                        $aggregatedCHO->setAttribute("rdf:resource", $recordPid);
+                                    }
+                                }
+                                $domDoc->save($edmRecordFile);
+                            }
+                            else{
+                                $this->e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation_storage',
+                                    'MESSAGE' => sprintf('PID(%s) for record %s could not be added stored.', $recordPid, $recordIdentifier)));
+                                $value['recordidentifier'] = $recordIdentifier;
+                                $value['pid'] = 'Error in storing pid in database.';
+                            }
+                        }
+                    }
+                }
+                else{
+                    $value['recordidentifier'] = 'Invalid element provided for pid generation: '. $pidEdmElement;
+                    $value['pid'] = 'PID not generated.';
+                }
+                $result[]= $value;
             }
         }
-        $domDoc->save($edmRecordFile);
-
-
         return $result;
     }
 
@@ -319,5 +324,8 @@ class pidStorage {
         $o_config = Configuration::load($conf_file_path);
 
         $this->pid_field= $o_config->get('pid_field');
+        $this->pid_element= $o_config->get('pid_element');
+        $this->pid_institution_url= $o_config->get('pid_institution_url');
+        $this->pid_record_type= $o_config->get('pid_record_type');
     }
 } 

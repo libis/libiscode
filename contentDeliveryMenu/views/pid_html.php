@@ -33,7 +33,10 @@
                             echo '</td>';
 
                             echo '<td style="text-align: left">';
-                                echo basename($file);
+                            echo '<a target = "_blank" style = "text-decoration:none;" href='.dirname($_SERVER['SCRIPT_NAME']).
+                                "/app/plugins/contentDeliveryMenu/files".end(explode('files', $file)).'>'
+                                .basename($file);
+                            echo '</a>';
                             echo '</td>';
                         echo "</tr>";
                     }
@@ -69,13 +72,12 @@
             header('Location: '.$_SERVER['PHP_SELF']);
         }
         else{
-
-
             foreach($_POST['edmFiles'] as $item){
                 $edmFileLocation = explode('files', $item);
 
                 if(isset($edmFileLocation[1])){
                     $edmFile = $filesDirectory.trim(str_replace('\\', '/', $edmFileLocation[1]));
+                    $edmFile = trim(trim($edmFile, '.'));
                     $isZip = new ZipArchive;
                     if ($isZip->open($edmFile) === true) {
                         echo '<br>';
@@ -88,7 +90,14 @@
                         }
                         else
                             mkdir($fileExtractionLocation);
+
+                        $pidZipFile = $fileExtractionLocation.'.zip';
                         echo '<br>EDM Zip File: '.basename($edmFile);
+                        echo '<br>EDM Zip File With PID: ';
+                        echo '<a target = "_blank" href='.dirname($_SERVER['SCRIPT_NAME']).
+                            "/app/plugins/contentDeliveryMenu/files".end(explode('files', $pidZipFile)).
+                            '>'.basename($pidZipFile).'<br>'.'</a>';
+
                         for($i = 0; $i < $isZip->numFiles; $i++) {
                             $isZip->extractTo($fileExtractionLocation, array($isZip->getNameIndex($i)));
                             $edmFileInZip = $fileExtractionLocation.'/'.$isZip->getNameIndex($i);
@@ -96,9 +105,8 @@
                             $result = $pidStorage->generateRecordPID($edmFileInZip);
                             echo '<br>-->EDM File: '.basename($edmFileInZip).'<br>';
                             foreach($result as $value){
-                                echo '----> Record Identifier: '.$value['recordidentifier'].'<br>';
-                                echo '------->Record PID: '.$value['generatedpid'].'<br>';
-                                echo '-------------> Stored PID: '.$value['storedpid'].'<br>';
+                                echo '--> Record Identifier: '.$value['recordidentifier'].'<br>';
+                                echo '----->Record PID: '.$value['pid'].'<br>';
                             }
                         }
                         $isZip->close();
@@ -120,8 +128,6 @@
                         $e_log->log(array('CODE' => 'LIBC', 'SOURCE' => 'pid_generation',
                             'MESSAGE' => _t('EDM File: %1', $edmFile)
                         ));
-
-                        $edmFile = trim(trim($edmFile, '.'));
                         $result = $pidStorage->generateRecordPID($edmFile);
 
                         echo '<br>EDM File: ';
@@ -136,13 +142,11 @@
                             ));
 
                             echo '--> Record Identifier: '.$value['recordidentifier'].'<br>';
-                            echo '----->Record PID: '.$value['generatedpid'].'<br>';
-                            echo '-----------> Stored PID: '.$value['storedpid'].'<br>';
+                            echo '----->Record PID: '.$value['pid'].'<br>';
                         }
                     }
 
                 }
-
 
             }
         }
