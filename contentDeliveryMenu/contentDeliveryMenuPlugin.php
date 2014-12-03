@@ -143,7 +143,12 @@
 		 * Get plugin user actions
 		 */
 		static public function getRoleActionList() {
-			return array();
+            return array(
+                'can_use_libiscode_plugin' => array(
+                    'label' => _t('Can use Libiscode plguin'),
+                    'description' => _t('User can use Libiscode functionality.')
+                )
+            );
 		}
 		# -------------------------------------------------------
 

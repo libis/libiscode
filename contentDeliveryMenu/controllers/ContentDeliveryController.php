@@ -59,26 +59,11 @@
  			
  			parent::__construct($po_request, $po_response, $pa_view_paths);
  			
-/*  			if (!$this->request->user->canDoAction('can_use_statistics_viewer_plugin')) {
- 				$this->response->setRedirect($this->request->config->get('error_display_url').'/n/3000?r='.urlencode($this->request->getFullUrlPath()));
- 				return;
- 			} */
- 			
- 			// $this->opo_config = Configuration::load(__CA_APP_DIR__.'/plugins/statisticsViewer/conf/statisticsViewer.conf');
-			
-/* 			// Get directory list
-			$va_file_list = caGetDirectoryContentsAsList(__CA_APP_DIR__."/plugins/statisticsViewer/".$this->opo_config->get('XmlStatisticsRootDirectory'), false, false);
-			$va_dir_list_with_file_counts = caGetSubDirectoryList($this->opo_config->get('importRootDirectory'), true, false);
-			$this->opa_statistics_xml_files = array();
-			$this->opa_statistics = array();
-
-			if (is_array($allowed_universes = $this->opo_config->getAssoc('AvailableUniversesForStats'))) {
-				// if the conf variable AvailableUniversesFor stats is defined
-				//echo "here.";
-			} */
-			
-/* 			$this->get_statistics_listing($va_file_list,$allowed_universes);			
- */ 		}
+            if (!$this->request->user->canDoAction('can_use_libiscode_plugin')) {
+                $this->response->setRedirect($this->request->config->get('error_display_url').'/n/3000?r='.urlencode($this->request->getFullUrlPath()));
+                return;
+            }			
+  		}
 
  		# -------------------------------------------------------
  		# Local functions
